@@ -1,4 +1,4 @@
-const {
+import {
   curry,
   mean,
   memoizeWith,
@@ -8,15 +8,15 @@ const {
   sortBy,
   xprod,
   zip
-} = require("ramda");
+} from "ramda";
 
-const distance = curry(
+const distance: (a: string, b: string) => number = curry(
   memoizeWith(
-    (string1, string2) =>
+    (string1: string, string2: string) =>
       string1.length > string2.length
         ? `${string1}${string2}`
         : `${string2}${string1}`,
-    (a, b) => {
+    (a: string, b: string) => {
       if (!a.length || !b.length) {
         return 0;
       }
@@ -84,10 +84,10 @@ const distance = curry(
   )
 );
 
-const coreSearch = (query, list) =>
+const coreSearch = (query: string, list: string[]) =>
   list.map(v => ({ v, d: distance(query, v) }));
 
-export const search = curry((query, list) => {
+export const search = curry((query: string, list: string[]) => {
   if (!query) {
     return list;
   }
@@ -96,7 +96,7 @@ export const search = curry((query, list) => {
     .map(prop("v"));
 });
 
-export const searchPreservingOrder = curry((query, list) => {
+export const searchPreservingOrder = curry((query: string, list: string[]) => {
   if (!query) {
     return list;
   }
@@ -105,7 +105,7 @@ export const searchPreservingOrder = curry((query, list) => {
     .map(prop("v"));
 });
 
-export const vagueSearch = curry((query, list) => {
+export const vagueSearch = curry((query: string, list: string[]) => {
   if (!query) {
     return list;
   }
@@ -114,58 +114,68 @@ export const vagueSearch = curry((query, list) => {
     .map(prop("v"));
 });
 
-export const vagueSearchPreservingOrder = curry((query, list) => {
-  if (!query) {
-    return list;
+export const vagueSearchPreservingOrder = curry(
+  (query: string, list: string[]) => {
+    if (!query) {
+      return list;
+    }
+    return coreSearch(query, list)
+      .filter(({ d }) => d < 2)
+      .map(prop("v"));
   }
-  return coreSearch(query, list)
-    .filter(({ d }) => d < 2)
-    .map(prop("v"));
-});
+);
 
-const coreObjectSearch = (query, keys, list) =>
+const coreObjectSearch = <T>(query: string, keys: string[], list: T[]) =>
   list.map(item => ({
     v: item,
     d: xprod(
       query.split(" "),
       keys.map(key => path(key.split("."), item))
     )
-      .map(([q, v]) => distance(q, v))
+      .map(([q, v]) => distance(q, `${v}`))
       .reduce(min, Infinity)
   }));
 
-export const objectSearch = curry((query, keys, list) => {
-  if (!query) {
-    return list;
+export const objectSearch = curry(
+  <T>(query: string, keys: string[], list: T[]) => {
+    if (!query) {
+      return list;
+    }
+    return sortBy(prop("d"), coreObjectSearch(query, keys, list))
+      .filter(({ d }) => d < 1)
+      .map(prop("v"));
   }
-  return sortBy(prop("d"), coreObjectSearch(query, keys, list))
-    .filter(({ d }) => d < 1)
-    .map(prop("v"));
-});
+);
 
-export const objectSearchPreservingOrder = curry((query, keys, list) => {
-  if (!query) {
-    return list;
+export const objectSearchPreservingOrder = curry(
+  <T>(query: string, keys: string[], list: T[]) => {
+    if (!query) {
+      return list;
+    }
+    return coreObjectSearch(query, keys, list)
+      .filter(({ d }) => d < 1)
+      .map(prop("v"));
   }
-  return coreObjectSearch(query, keys, list)
-    .filter(({ d }) => d < 1)
-    .map(prop("v"));
-});
+);
 
-export const vagueObjectSearch = curry((query, keys, list) => {
-  if (!query) {
-    return list;
+export const vagueObjectSearch = curry(
+  <T>(query: string, keys: string[], list: T[]) => {
+    if (!query) {
+      return list;
+    }
+    return sortBy(prop("d"), coreObjectSearch(query, keys, list))
+      .filter(({ d }) => d < 2)
+      .map(prop("v"));
   }
-  return sortBy(prop("d"), coreObjectSearch(query, keys, list))
-    .filter(({ d }) => d < 2)
-    .map(prop("v"));
-});
+);
 
-export const vagueObjectSearchPreservingOrder = curry((query, keys, list) => {
-  if (!query) {
-    return list;
+export const vagueObjectSearchPreservingOrder = curry(
+  <T>(query: string, keys: string[], list: T[]) => {
+    if (!query) {
+      return list;
+    }
+    return coreObjectSearch(query, keys, list)
+      .filter(({ d }) => d < 2)
+      .map(prop("v"));
   }
-  return coreObjectSearch(query, keys, list)
-    .filter(({ d }) => d < 2)
-    .map(prop("v"));
-});
+);
