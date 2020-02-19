@@ -1,0 +1,10 @@
+{
+  "name": "search",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Alex Matthews",
+  "license": "MIT",
+  "dependencies": {
+    "ramda": "^0.27.0"
+  }
+}
