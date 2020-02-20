@@ -1,9 +1,9 @@
 {
   "name": "search-filterer",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "A curried memoized search library",
   "repository": "https://github.com/amatthews4851/search-filterer",
-  "main": "index.js",
+  "main": "dist/index.js",
   "author": "Alex Matthews",
   "license": "MIT",
   "scripts": {
