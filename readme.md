@@ -1,6 +1,6 @@
 # search-filterer
 
-A fuzzy search library using a slightly tweaked Damerau–Levenshtein distance algorithm
+A fuzzy search library using a slightly tweaked Damerau–Levenshtein distance algorithm. To see it in action before downloading, feel free to visit the [example page](https://amatthews4851.github.io/search-filterer/)
 
 ## Installation
 
