@@ -38,14 +38,14 @@ const distance: (a: string, b: string, vague?: boolean) => number = memoizeWith(
       if (a.substr(0, b.length) === b) {
         return -1;
       }
-      if (a.includes(b)) {
+      if (!!a.match(b)) {
         return 0;
       }
     } else if (b.length > a.length) {
       if (b.substr(0, a.length) === a) {
         return -1;
       }
-      if (b.includes(a)) {
+      if (!!b.match(a)) {
         return 0;
       }
     }

@@ -1,11 +1,21 @@
 {
-  "name": "search",
+  "name": "search-filterer",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "A curried memoized search library",
+  "repository": "https://github.com/amatthews4851/search-filterer",
+  "main": "index.ts",
   "author": "Alex Matthews",
   "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "build-docs": "browserify ./docs/main.js -o ./docs/index.js"
+  },
   "dependencies": {
     "@types/ramda": "^0.26.41",
     "ramda": "^0.27.0"
+  },
+  "devDependencies": {
+    "browserify": "^16.5.0",
+    "typescript": "^3.7.5"
   }
 }

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="./index.js"></script>
+    <style>
+      body {
+        background-color: rgb(30, 30, 32);
+        color: rgb(200, 200, 203);
+        font-family: sans-serif;
+      }
+      input {
+        background-color: rgb(30, 30, 32);
+        border-radius: 4px;
+        color: rgb(200, 200, 203);
+        border: solid 1px rgb(200, 200, 203);
+      }
+    </style>
+    <title>search-filterer</title>
+  </head>
+  <body>
+    <div>
+      <span>query: </span>
+      <input id="query" onkeyup="runSearch()" />
+    </div>
+    <div>
+      <span>options: </span>
+      <span style="margin-right: 16px" onclick="runSearch()">
+        <label>
+          <input
+            name="options"
+            checked
+            type="radio"
+            class="optionsRadioButton"
+          />
+          &nbsp;single string
+        </label>
+      </span>
+      <span style="margin-right: 16px" onclick="runSearch()">
+        <label>
+          <input name="options" type="radio" class="optionsRadioButton" />
+          &nbsp;multi string
+        </label>
+      </span>
+      <span style="margin-right: 16px" onclick="runSearch()">
+        <label>
+          <input name="options" type="radio" class="optionsRadioButton" />
+          &nbsp;object of strings
+        </label>
+      </span>
+      <span style="margin-right: 16px" onclick="runSearch()">
+        <label>
+          <input name="options" type="radio" class="optionsRadioButton" />
+          &nbsp;object of multiple strings
+        </label>
+      </span>
+    </div>
+    <div>
+      <span>strictness: </span>
+      <span style="margin-right: 16px" onclick="runSearch()">
+        <label>
+          <input
+            name="strictness"
+            class="strictnessRadioButton"
+            checked
+            type="radio"
+          />
+          &nbsp;normal
+        </label>
+      </span>
+      <span style="margin-right: 16px" onclick="runSearch()">
+        <label>
+          <input name="strictness" class="strictnessRadioButton" type="radio" />
+          &nbsp;vague
+        </label>
+      </span>
+    </div>
+    <div>
+      <span>order: </span>
+      <span style="margin-right: 16px" onclick="runSearch()">
+        <label>
+          <input name="order" class="orderRadioButton" checked type="radio" />
+          &nbsp;relevance
+        </label>
+      </span>
+      <span style="margin-right: 16px" onclick="runSearch()">
+        <label>
+          <input name="order" class="orderRadioButton" type="radio" />
+          &nbsp;preserve
+        </label>
+      </span>
+    </div>
+    &nbsp;
+    <div>Use:</div>
+    <div
+      id="functionToUse"
+      style="
+      background-color: rgb(50, 50, 52);
+      margin-top: 16px;
+      margin-bottom: 16px;
+      padding: 12px;
+      border-radius: 4px;
+      max-width: 600px;
+      font-family: 'Lucida Console', Monaco, monospace;
+    "
+    ></div>
+    <div id="timeToSearch">Time to search: 0ms</div>
+    <div style="display: flex; flex-direction: row;">
+      <div style="min-width: 300px">
+        <div id="optionsCount">options: (count: 0)</div>
+        <pre id="optionsList">[]</pre>
+      </div>
+      <div>
+        <div id="resultsCount">results: (count: 0)</div>
+        <pre id="resultsList">[]</pre>
+      </div>
+    </div>
+    <script>
+      runSearch();
+    </script>
+  </body>
+</html>

@@ -1,10 +1,41 @@
-# Fuzzy Search
+# search-filterer
 
 A fuzzy search library using a slightly tweaked Damerau–Levenshtein distance algorithm
 
+## Installation
+
+To install, use your package manager of choice:
+
+```shell
+yarn add search-filterer
+```
+
+```shell
+npm install --save search-filterer
+```
+
 ## Exports
 
-All functions listed here are curried and memoized. They will return a new list consisting of items in the `list` that passed the checks.
+All functions listed here are curried, memoized, and are named exports. They will return a new list consisting of items in the `list` that passed the checks. To use, simply
+
+```ts
+import { search, objectSearch } from "search-filterer";
+
+const myList = ["foo", "bar", "baz"];
+
+const results = search("bar", myList); // ["bar", "baz"]
+
+const myListOfObjects = [
+  { foo: "dog", bar: { baz: "cat" } },
+  { foo: "mouse", bar: { baz: "hamster" } }
+];
+
+const objectResults = objectSearch(
+  "hamster",
+  ["foo", "bar.baz"],
+  myListOfObjects
+); // [{foo: "mouse", bar: {baz: "hamster"}}]
+```
 
 ---
 
