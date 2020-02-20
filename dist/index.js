@@ -157,3 +157,58 @@ exports.vagueObjectSearchPreservingOrder = ramda_1.curry(function (query, keys, 
     })
         .map(ramda_1.prop("v"));
 });
+var coreGetterSearch = function (query, getters, list, vague) {
+    return list.map(function (item) { return ({
+        v: item,
+        d: ramda_1.xprod(query.split(" "), getters.map(function (getter) { return getter(item); }))
+            .map(function (_a) {
+            var q = _a[0], v = _a[1];
+            return distance(q, "" + v, vague);
+        })
+            .reduce(ramda_1.min, Infinity)
+    }); });
+};
+exports.searchUsingGetters = ramda_1.curry(function (query, getters, list) {
+    if (!query) {
+        return list;
+    }
+    return ramda_1.sortBy(ramda_1.prop("d"), coreGetterSearch(query, getters, list))
+        .filter(function (_a) {
+        var d = _a.d;
+        return d < 2;
+    })
+        .map(ramda_1.prop("v"));
+});
+exports.searchUsingGettersPreservingOrder = ramda_1.curry(function (query, getters, list) {
+    if (!query) {
+        return list;
+    }
+    return coreGetterSearch(query, getters, list)
+        .filter(function (_a) {
+        var d = _a.d;
+        return d < 2;
+    })
+        .map(ramda_1.prop("v"));
+});
+exports.vagueSearchUsingGetters = ramda_1.curry(function (query, getters, list) {
+    if (!query) {
+        return list;
+    }
+    return ramda_1.sortBy(ramda_1.prop("d"), coreGetterSearch(query, getters, list, true))
+        .filter(function (_a) {
+        var d = _a.d;
+        return d < 3;
+    })
+        .map(ramda_1.prop("v"));
+});
+exports.vagueSearchUsingGettersPreservingOrder = ramda_1.curry(function (query, getters, list) {
+    if (!query) {
+        return list;
+    }
+    return coreGetterSearch(query, getters, list, true)
+        .filter(function (_a) {
+        var d = _a.d;
+        return d < 3;
+    })
+        .map(ramda_1.prop("v"));
+});

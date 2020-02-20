@@ -55,6 +55,12 @@
           &nbsp;object of multiple strings
         </label>
       </span>
+      <span style="margin-right: 16px" onclick="runSearch()">
+        <label>
+          <input name="options" type="radio" class="optionsRadioButton" />
+          &nbsp;object of multiple strings with getters
+        </label>
+      </span>
     </div>
     <div>
       <span>strictness: </span>
@@ -101,8 +107,11 @@
       margin-bottom: 16px;
       padding: 12px;
       border-radius: 4px;
-      max-width: 600px;
+      max-width: 700px;
+      overflow-x: scroll;
       font-family: 'Lucida Console', Monaco, monospace;
+      display: flex;
+      flex-direction: row;
     "
     ></div>
     <div id="timeToSearch">Time to search: 0ms</div>

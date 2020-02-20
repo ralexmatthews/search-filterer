@@ -64,11 +64,35 @@ Searches the `list` of objects using the arrays of `keys`, matching the, with th
 ---
 
 ```ts
-type objectSearch<T> = (query: string, keys: [string], list: [T]) => [T];
+type vagueObjectSearch<T> = (query: string, keys: [string], list: [T]) => [T];
 ```
 
 Exactly the same as `objectSearch()` except looser on what is accepted
 
 ---
 
-`searchPreservingOrder()`, `vagueSearchPreservingOrder()`, `objectSearchPreservingOrder()`, `vagueObjectSearchPreservingOrder()` are all the same as their base functions, but the list returned preserves the same order as the `list` argument that was passed in.
+```ts
+type searchWithGetters<T> = (
+  query: string,
+  getters: [(item: T) => string],
+  list: [T]
+) => [T];
+```
+
+Searches the `list` of objects using the arrays of `getters`, matching the, with the `query`. This is similar to the object search, but you can use your own function to get the values out of the item. This allows for custom data structures to be used in the list.
+
+---
+
+```ts
+type searchWithGetters<T> = (
+  query: string,
+  getters: [(item: T) => string],
+  list: [T]
+) => [T];
+```
+
+Exactly the same as `searchWithGetters()` except looser on what is accepted
+
+---
+
+`searchPreservingOrder()`, `vagueSearchPreservingOrder()`, `objectSearchPreservingOrder()`, `vagueObjectSearchPreservingOrder()`, `searchWithGettersPreservingOrder()`, `searchWithGettersPreservingOrder()` are all the same as their base functions, but the list returned preserves the same order as the `list` argument that was passed in.

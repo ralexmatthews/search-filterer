@@ -7,3 +7,7 @@ export declare const objectSearch: import("Function/Curry").Curry<(<T>(query: st
 export declare const objectSearchPreservingOrder: import("Function/Curry").Curry<(<T>(query: string, keys: string[], list: T[]) => T[])>;
 export declare const vagueObjectSearch: import("Function/Curry").Curry<(<T>(query: string, keys: string[], list: T[]) => T[])>;
 export declare const vagueObjectSearchPreservingOrder: import("Function/Curry").Curry<(<T>(query: string, keys: string[], list: T[]) => T[])>;
+export declare const searchUsingGetters: import("Function/Curry").Curry<(<T>(query: string, getters: Function[], list: T[]) => T[])>;
+export declare const searchUsingGettersPreservingOrder: import("Function/Curry").Curry<(<T>(query: string, getters: Function[], list: T[]) => T[])>;
+export declare const vagueSearchUsingGetters: import("Function/Curry").Curry<(<T>(query: string, getters: Function[], list: T[]) => T[])>;
+export declare const vagueSearchUsingGettersPreservingOrder: import("Function/Curry").Curry<(<T>(query: string, getters: Function[], list: T[]) => T[])>;

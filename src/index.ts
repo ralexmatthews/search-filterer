@@ -179,3 +179,63 @@ export const vagueObjectSearchPreservingOrder = curry(
       .map(prop("v"));
   }
 );
+
+const coreGetterSearch = <T>(
+  query: string,
+  getters: Function[],
+  list: T[],
+  vague?: boolean
+) =>
+  list.map(item => ({
+    v: item,
+    d: xprod(
+      query.split(" "),
+      getters.map(getter => getter(item))
+    )
+      .map(([q, v]) => distance(q, `${v}`, vague))
+      .reduce(min, Infinity)
+  }));
+
+export const searchUsingGetters = curry(
+  <T>(query: string, getters: Function[], list: T[]) => {
+    if (!query) {
+      return list;
+    }
+    return sortBy(prop("d"), coreGetterSearch(query, getters, list))
+      .filter(({ d }) => d < 2)
+      .map(prop("v"));
+  }
+);
+
+export const searchUsingGettersPreservingOrder = curry(
+  <T>(query: string, getters: Function[], list: T[]) => {
+    if (!query) {
+      return list;
+    }
+    return coreGetterSearch(query, getters, list)
+      .filter(({ d }) => d < 2)
+      .map(prop("v"));
+  }
+);
+
+export const vagueSearchUsingGetters = curry(
+  <T>(query: string, getters: Function[], list: T[]) => {
+    if (!query) {
+      return list;
+    }
+    return sortBy(prop("d"), coreGetterSearch(query, getters, list, true))
+      .filter(({ d }) => d < 3)
+      .map(prop("v"));
+  }
+);
+
+export const vagueSearchUsingGettersPreservingOrder = curry(
+  <T>(query: string, getters: Function[], list: T[]) => {
+    if (!query) {
+      return list;
+    }
+    return coreGetterSearch(query, getters, list, true)
+      .filter(({ d }) => d < 3)
+      .map(prop("v"));
+  }
+);

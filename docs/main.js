@@ -6,7 +6,11 @@ const {
   objectSearch,
   objectSearchPreservingOrder,
   vagueObjectSearch,
-  vagueObjectSearchPreservingOrder
+  vagueObjectSearchPreservingOrder,
+  searchUsingGetters,
+  searchUsingGettersPreservingOrder,
+  vagueSearchUsingGetters,
+  vagueSearchUsingGettersPreservingOrder
 } = require("../dist/index.js");
 
 window.runSearch = () => {
@@ -42,13 +46,37 @@ window.runSearch = () => {
         : preserveOrder === 0
         ? vagueObjectSearch(query, ["foo.bar"], list)
         : vagueObjectSearchPreservingOrder(query, ["foo.bar"], list)
+      : optionsIndex === 3
+      ? vagueness === 0
+        ? preserveOrder === 0
+          ? objectSearch(query, ["foo.bar", "baz"], list)
+          : objectSearchPreservingOrder(query, ["foo.bar", "baz"], list)
+        : preserveOrder === 0
+        ? vagueObjectSearch(query, ["foo.bar", "baz"], list)
+        : vagueObjectSearchPreservingOrder(query, ["foo.bar", "baz"], list)
       : vagueness === 0
       ? preserveOrder === 0
-        ? objectSearch(query, ["foo.bar", "baz"], list)
-        : objectSearchPreservingOrder(query, ["foo.bar", "baz"], list)
+        ? searchUsingGetters(
+            query,
+            [item => item.foo.bar, item => item.baz],
+            list
+          )
+        : searchUsingGettersPreservingOrder(
+            query,
+            [item => item.foo.bar, item => item.baz],
+            list
+          )
       : preserveOrder === 0
-      ? vagueObjectSearch(query, ["foo.bar", "baz"], list)
-      : vagueObjectSearchPreservingOrder(query, ["foo.bar", "baz"], list);
+      ? vagueSearchUsingGetters(
+          query,
+          [item => item.foo.bar, item => item.baz],
+          list
+        )
+      : vagueSearchUsingGettersPreservingOrder(
+          query,
+          [item => item.foo.bar, item => item.baz],
+          list
+        );
   const t2 = performance.now();
 
   setFunctionToUse(query, optionsIndex, vagueness, preserveOrder);
@@ -59,20 +87,22 @@ window.runSearch = () => {
   setTimeToSearch(Math.round(t2 - t1));
 };
 
-const createSpan = (color, children) => {
-  const span = document.createElement("span");
-  color && span.setAttribute("style", `color: ${color};`);
-  span.innerText = children;
-  return span;
+const createDiv = (color, children) => {
+  const div = document.createElement("div");
+  div.setAttribute(
+    "style",
+    `color: ${color ||
+      "rgb(200, 200, 204)"}; display: flex; flex-direction: row; white-space: pre;`
+  );
+  div.innerText = children;
+  return div;
 };
 
 const setFunctionToUse = (query, optionsIndex, vagueness, preserveOrder) => {
   const functionToUse = document.getElementById("functionToUse");
 
-  const root = document.createElement("span");
-
   if (optionsIndex <= 1) {
-    const functionName = createSpan(
+    const functionName = createDiv(
       "rgb(250, 70, 70)",
       vagueness === 0 && preserveOrder === 0
         ? "search"
@@ -82,18 +112,17 @@ const setFunctionToUse = (query, optionsIndex, vagueness, preserveOrder) => {
         ? "vagueSearch"
         : "vagueSearchPreservingOrder"
     );
-    const string = createSpan("rgb(100, 200, 50)", `"${query}"`);
-    const list = createSpan("rgb(100, 100, 200)", "list");
-    root.appendChild(functionName);
-    root.appendChild(createSpan("", "("));
-    root.appendChild(string);
-    root.appendChild(createSpan("", ", "));
-    root.appendChild(list);
-    root.appendChild(createSpan("", ");"));
+    const string = createDiv("rgb(100, 200, 50)", `"${query}"`);
+    const list = createDiv("rgb(100, 100, 200)", "list");
     functionToUse.innerHTML = "";
-    functionToUse.appendChild(root);
+    functionToUse.appendChild(functionName);
+    functionToUse.appendChild(createDiv("", "("));
+    functionToUse.appendChild(string);
+    functionToUse.appendChild(createDiv("", ", "));
+    functionToUse.appendChild(list);
+    functionToUse.appendChild(createDiv("", ");"));
   } else if (optionsIndex === 2) {
-    const functionName = createSpan(
+    const functionName = createDiv(
       "rgb(250, 70, 70)",
       vagueness === 0 && preserveOrder === 0
         ? "objectSearch"
@@ -103,21 +132,20 @@ const setFunctionToUse = (query, optionsIndex, vagueness, preserveOrder) => {
         ? "vagueObjectSearch"
         : "vagueObjectSearchPreservingOrder"
     );
-    const string1 = createSpan("rgb(100, 200, 50)", `"${query}"`);
-    const string2 = createSpan("rgb(100, 200, 50)", `"foo.bar"`);
-    const list = createSpan("rgb(100, 100, 200)", "list");
-    root.appendChild(functionName);
-    root.appendChild(createSpan("", "("));
-    root.appendChild(string1);
-    root.appendChild(createSpan("", ", ["));
-    root.appendChild(string2);
-    root.appendChild(createSpan("", "], "));
-    root.appendChild(list);
-    root.appendChild(createSpan("", ");"));
+    const string1 = createDiv("rgb(100, 200, 50)", `"${query}"`);
+    const string2 = createDiv("rgb(100, 200, 50)", `"foo.bar"`);
+    const list = createDiv("rgb(100, 100, 200)", "list");
     functionToUse.innerHTML = "";
-    functionToUse.appendChild(root);
+    functionToUse.appendChild(functionName);
+    functionToUse.appendChild(createDiv("", "("));
+    functionToUse.appendChild(string1);
+    functionToUse.appendChild(createDiv("", ", ["));
+    functionToUse.appendChild(string2);
+    functionToUse.appendChild(createDiv("", "], "));
+    functionToUse.appendChild(list);
+    functionToUse.appendChild(createDiv("", ");"));
   } else if (optionsIndex === 3) {
-    const functionName = createSpan(
+    const functionName = createDiv(
       "rgb(250, 70, 70)",
       vagueness === 0 && preserveOrder === 0
         ? "objectSearch"
@@ -127,95 +155,50 @@ const setFunctionToUse = (query, optionsIndex, vagueness, preserveOrder) => {
         ? "vagueObjectSearch"
         : "vagueObjectSearchPreservingOrder"
     );
-    const string1 = createSpan("rgb(100, 200, 50)", `"${query}"`);
-    const string2 = createSpan("rgb(100, 200, 50)", `"foo.bar"`);
-    const string3 = createSpan("rgb(100, 200, 50)", `"baz"`);
-    const list = createSpan("rgb(100, 100, 200)", "list");
-    root.appendChild(functionName);
-    root.appendChild(createSpan("", "("));
-    root.appendChild(string1);
-    root.appendChild(createSpan("", ", ["));
-    root.appendChild(string2);
-    root.appendChild(createSpan("", ", "));
-    root.appendChild(string3);
-    root.appendChild(createSpan("", "], "));
-    root.appendChild(list);
-    root.appendChild(createSpan("", ");"));
+    const string1 = createDiv("rgb(100, 200, 50)", `"${query}"`);
+    const string2 = createDiv("rgb(100, 200, 50)", `"foo.bar"`);
+    const string3 = createDiv("rgb(100, 200, 50)", `"baz"`);
+    const list = createDiv("rgb(100, 100, 200)", "list");
     functionToUse.innerHTML = "";
-    functionToUse.appendChild(root);
+    functionToUse.appendChild(functionName);
+    functionToUse.appendChild(createDiv("", "("));
+    functionToUse.appendChild(string1);
+    functionToUse.appendChild(createDiv("", ", ["));
+    functionToUse.appendChild(string2);
+    functionToUse.appendChild(createDiv("", ", "));
+    functionToUse.appendChild(string3);
+    functionToUse.appendChild(createDiv("", "], "));
+    functionToUse.appendChild(list);
+    functionToUse.appendChild(createDiv("", ");"));
+  } else if (optionsIndex === 4) {
+    const functionName = createDiv(
+      "rgb(250, 70, 70)",
+      vagueness === 0 && preserveOrder === 0
+        ? "searchUsingGetters"
+        : vagueness === 0 && preserveOrder === 1
+        ? "searchUsingGettersPreservingOrder"
+        : vagueness === 1 && preserveOrder === 0
+        ? "vagueSearchUsingGetters"
+        : "vagueSearchUsingGettersPreservingOrder"
+    );
+    const string1 = createDiv("rgb(100, 200, 50)", `"${query}"`);
+    const arrow1 = createDiv("rgb(100, 100, 200)", " => ");
+    const arrow2 = createDiv("rgb(100, 100, 200)", " => ");
+    const list = createDiv("rgb(100, 100, 200)", "list");
+    functionToUse.innerHTML = "";
+    functionToUse.appendChild(functionName);
+    functionToUse.appendChild(createDiv("", "("));
+    functionToUse.appendChild(string1);
+    functionToUse.appendChild(createDiv("", ", ["));
+    functionToUse.appendChild(createDiv("", "item"));
+    functionToUse.appendChild(arrow1);
+    functionToUse.appendChild(createDiv("", "item.foo.bar, item"));
+    functionToUse.appendChild(arrow2);
+    functionToUse.appendChild(createDiv("", "item.baz"));
+    functionToUse.appendChild(createDiv("", "], "));
+    functionToUse.appendChild(list);
+    functionToUse.appendChild(createDiv("", ");"));
   }
-
-  // optionsIndex === 0 || optionsIndex === 1 ? (
-  //   vagueness === 0 ? (
-  //     <>
-  //       <span style={{ color: "rgb(250, 70, 70)" }}>
-  //         search{preserveOrder === 0 ? "" : "PreservingOrder"}
-  //       </span>
-  //       <span>
-  //         (<span style={{ color: "rgb(100, 200, 50)" }}>"{query}"</span>,
-  //         <span style={{ color: "rgb(100, 100, 200)" }}> list</span>);
-  //       </span>
-  //     </>
-  //   ) : (
-  //     <>
-  //       <span style={{ color: "rgb(250, 70, 70)" }}>
-  //         vagueSearch{preserveOrder === 0 ? "" : "PreservingOrder"}
-  //       </span>
-  //       <span>
-  //         (<span style={{ color: "rgb(100, 200, 50)" }}>"{query}"</span>,
-  //         <span style={{ color: "rgb(100, 100, 200)" }}> list</span>);
-  //       </span>
-  //     </>
-  //   )
-  // ) : optionsIndex === 2 ? (
-  //   vagueness === 0 ? (
-  //     <>
-  //       <span style={{ color: "rgb(250, 70, 70)" }}>
-  //         objectSearch{preserveOrder === 0 ? "" : "PreservingOrder"}
-  //       </span>
-  //       <span>
-  //         (<span style={{ color: "rgb(100, 200, 50)" }}>"{query}"</span>, [
-  //         <span style={{ color: "rgb(100, 200, 50)" }}>"foo.bar"</span>],{" "}
-  //         <span style={{ color: "rgb(100, 100, 200)" }}> list</span>);
-  //       </span>
-  //     </>
-  //   ) : (
-  //     <>
-  //       <span style={{ color: "rgb(250, 70, 70)" }}>
-  //         vagueObjectSearch{preserveOrder === 0 ? "" : "PreservingOrder"}
-  //       </span>
-  //       <span>
-  //         (<span style={{ color: "rgb(100, 200, 50)" }}>"{query}"</span>, [
-  //         <span style={{ color: "rgb(100, 200, 50)" }}>"foo.bar"</span>],{" "}
-  //         <span style={{ color: "rgb(100, 100, 200)" }}> list</span>);
-  //       </span>
-  //     </>
-  //   )
-  // ) : vagueness === 0 ? (
-  //   <>
-  //     <span style={{ color: "rgb(250, 70, 70)" }}>
-  //       objectSearch{preserveOrder === 0 ? "" : "PreservingOrder"}
-  //     </span>
-  //     <span>
-  //       (<span style={{ color: "rgb(100, 200, 50)" }}>"{query}"</span>, [
-  //       <span style={{ color: "rgb(100, 200, 50)" }}>"foo.bar"</span>,{" "}
-  //       <span style={{ color: "rgb(100, 200, 50)" }}>"baz"</span>],{" "}
-  //       <span style={{ color: "rgb(100, 100, 200)" }}> list</span>);
-  //     </span>
-  //   </>
-  // ) : (
-  //   <>
-  //     <span style={{ color: "rgb(250, 70, 70)" }}>
-  //       vagueObjectSearch{preserveOrder === 0 ? "" : "PreservingOrder"}
-  //     </span>
-  //     <span>
-  //       (<span style={{ color: "rgb(100, 200, 50)" }}>"{query}"</span>, [
-  //       <span style={{ color: "rgb(100, 200, 50)" }}>"foo.bar"</span>,{" "}
-  //       <span style={{ color: "rgb(100, 200, 50)" }}>"baz"</span>],{" "}
-  //       <span style={{ color: "rgb(100, 100, 200)" }}> list</span>);
-  //     </span>
-  //   </>
-  // );
 };
 const setOptionsCount = list => {
   document.getElementById(
