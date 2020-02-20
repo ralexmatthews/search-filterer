@@ -19,8 +19,8 @@ const distance: (a: string, b: string, vague?: boolean) => number = memoizeWith(
     if (!string1.length || !string2.length) {
       return 0;
     }
-    const a = string1.trim();
-    const b = string2.trim();
+    const a = string1.trim().toLowerCase();
+    const b = string2.trim().toLowerCase();
 
     if (a === b) {
       return -2;

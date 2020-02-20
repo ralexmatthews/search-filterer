@@ -10,8 +10,8 @@ var distance = ramda_1.memoizeWith(function (string1, string2, vague) {
     if (!string1.length || !string2.length) {
         return 0;
     }
-    var a = string1.trim();
-    var b = string2.trim();
+    var a = string1.trim().toLowerCase();
+    var b = string2.trim().toLowerCase();
     if (a === b) {
         return -2;
     }
