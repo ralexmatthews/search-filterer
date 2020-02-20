@@ -3,7 +3,7 @@
   "version": "1.1.0",
   "description": "A curried memoized search library",
   "repository": "https://github.com/amatthews4851/search-filterer",
-  "main": "index.ts",
+  "main": "index.js",
   "author": "Alex Matthews",
   "license": "MIT",
   "scripts": {
