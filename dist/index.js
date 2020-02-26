@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var ramda_1 = require("ramda");
 var distance = ramda_1.memoizeWith(function (string1, string2, vague) {
     return string1.length > string2.length
-        ? "" + string1 + string2 + vague
-        : "" + string2 + string1 + vague;
+        ? "string1:" + string1 + " --- string2:" + string2 + " --- vague:" + vague
+        : "string1:" + string2 + " --- string2:" + string1 + " --- vague:" + vague;
 }, function (string1, string2, vague) {
     if (!string1.length || !string2.length) {
         return 0;

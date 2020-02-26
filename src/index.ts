@@ -13,8 +13,8 @@ import {
 const distance: (a: string, b: string, vague?: boolean) => number = memoizeWith(
   (string1: string, string2: string, vague?: boolean) =>
     string1.length > string2.length
-      ? `${string1}${string2}${vague}`
-      : `${string2}${string1}${vague}`,
+      ? `string1:${string1} --- string2:${string2} --- vague:${vague}`
+      : `string1:${string2} --- string2:${string1} --- vague:${vague}`,
   (string1: string, string2: string, vague?: boolean) => {
     if (!string1.length || !string2.length) {
       return 0;
