@@ -16,7 +16,7 @@ npm install --save search-filterer
 
 ## Exports
 
-All functions listed here are curried, memoized, and are named exports. They will return a new list consisting of items in the `list` that passed the checks. To use, simply
+All functions listed here are curried, memoized†, and are named exports. They will return a new list consisting of items in the `list` that passed the checks. To use, simply
 
 ```ts
 import { search, objectSearch } from "search-filterer";
@@ -96,3 +96,24 @@ Exactly the same as `searchWithGetters()` except looser on what is accepted
 ---
 
 `searchPreservingOrder()`, `vagueSearchPreservingOrder()`, `objectSearchPreservingOrder()`, `vagueObjectSearchPreservingOrder()`, `searchWithGettersPreservingOrder()`, `searchWithGettersPreservingOrder()` are all the same as their base functions, but the list returned preserves the same order as the `list` argument that was passed in.
+
+<small>† all of the `searchWithGetters` functions are memoized based on a key created by the query, the list of items, and a string created based on the names of the functions passed in. If these functions are anonymous functions, a random number is used for the key instead and will always be recomputed. In order to take advantage of the memoization, it would be best to extract these out to a named function
+
+```ts
+searchWithGetters("foo", [item => item.bar], items); // this will not be memoized
+// ------
+searchWithGetters(
+  "foo",
+  [
+    function(item) {
+      return item.bar;
+    }
+  ],
+  items
+); // this will not be memoized
+// ------
+const myGetter = item => item.bar;
+searchWithGetters("foo", [myGetter], items); // this will be memoized
+```
+
+</small>

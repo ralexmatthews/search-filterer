@@ -72,38 +72,38 @@ const coreSearch = (query, list) => list.map(item => ({
     v: item,
     d: distance(query, item)
 }));
-exports.search = ramda_1.curry((query, list) => {
+exports.search = ramda_1.curry(ramda_1.memoizeWith((query, list) => `${query} --- ${JSON.stringify(list)}`, (query, list) => {
     if (!query) {
         return list;
     }
     return ramda_1.sortBy(ramda_1.prop("d"), coreSearch(query, list))
         .filter(({ d }) => d < 2)
         .map(ramda_1.prop("v"));
-});
-exports.searchPreservingOrder = ramda_1.curry((query, list) => {
+}));
+exports.searchPreservingOrder = ramda_1.curry(ramda_1.memoizeWith((query, list) => `${query} --- ${JSON.stringify(list)}`, (query, list) => {
     if (!query) {
         return list;
     }
     return coreSearch(query, list)
         .filter(({ d }) => d < 2)
         .map(ramda_1.prop("v"));
-});
-exports.vagueSearch = ramda_1.curry((query, list) => {
+}));
+exports.vagueSearch = ramda_1.curry(ramda_1.memoizeWith((query, list) => `${query} --- ${JSON.stringify(list)}`, (query, list) => {
     if (!query) {
         return list;
     }
     return ramda_1.sortBy(ramda_1.prop("d"), coreSearch(query, list))
         .filter(({ d }) => d < 3)
         .map(ramda_1.prop("v"));
-});
-exports.vagueSearchPreservingOrder = ramda_1.curry((query, list) => {
+}));
+exports.vagueSearchPreservingOrder = ramda_1.curry(ramda_1.memoizeWith((query, list) => `${query} --- ${JSON.stringify(list)}`, (query, list) => {
     if (!query) {
         return list;
     }
     return coreSearch(query, list)
         .filter(({ d }) => d < 3)
         .map(ramda_1.prop("v"));
-});
+}));
 const coreObjectSearch = (query, keys, list) => list.map(item => {
     const scores = keys
         .map(key => ramda_1.path(key.split("."), item))
@@ -119,38 +119,38 @@ const coreObjectSearch = (query, keys, list) => list.map(item => {
         d: scores.reduce(ramda_1.min, Infinity)
     };
 });
-exports.objectSearch = ramda_1.curry((query, keys, list) => {
+exports.objectSearch = ramda_1.curry(ramda_1.memoizeWith((query, keys, list) => `${query} --- ${JSON.stringify(keys)} --- ${JSON.stringify(list)}`, (query, keys, list) => {
     if (!query) {
         return list;
     }
     return ramda_1.sortBy(ramda_1.prop("d"), coreObjectSearch(query, keys, list))
         .filter(({ d }) => d < 2)
         .map(ramda_1.prop("v"));
-});
-exports.objectSearchPreservingOrder = ramda_1.curry((query, keys, list) => {
+}));
+exports.objectSearchPreservingOrder = ramda_1.curry(ramda_1.memoizeWith((query, keys, list) => `${query} --- ${JSON.stringify(keys)} --- ${JSON.stringify(list)}`, (query, keys, list) => {
     if (!query) {
         return list;
     }
     return coreObjectSearch(query, keys, list)
         .filter(({ d }) => d < 2)
         .map(ramda_1.prop("v"));
-});
-exports.vagueObjectSearch = ramda_1.curry((query, keys, list) => {
+}));
+exports.vagueObjectSearch = ramda_1.curry(ramda_1.memoizeWith((query, keys, list) => `${query} --- ${JSON.stringify(keys)} --- ${JSON.stringify(list)}`, (query, keys, list) => {
     if (!query) {
         return list;
     }
     return ramda_1.sortBy(ramda_1.prop("d"), coreObjectSearch(query, keys, list))
         .filter(({ d }) => d < 3)
         .map(ramda_1.prop("v"));
-});
-exports.vagueObjectSearchPreservingOrder = ramda_1.curry((query, keys, list) => {
+}));
+exports.vagueObjectSearchPreservingOrder = ramda_1.curry(ramda_1.memoizeWith((query, keys, list) => `${query} --- ${JSON.stringify(keys)} --- ${JSON.stringify(list)}`, (query, keys, list) => {
     if (!query) {
         return list;
     }
     return coreObjectSearch(query, keys, list)
         .filter(({ d }) => d < 3)
         .map(ramda_1.prop("v"));
-});
+}));
 const coreGetterSearch = (query, getters, list) => list.map(item => {
     const scores = getters
         .map(getter => getter(item))
@@ -166,35 +166,35 @@ const coreGetterSearch = (query, getters, list) => list.map(item => {
         d: scores.reduce(ramda_1.min, Infinity)
     };
 });
-exports.searchUsingGetters = ramda_1.curry((query, getters, list) => {
+exports.searchUsingGetters = ramda_1.curry(ramda_1.memoizeWith((query, getters, list) => `${query} --- ${JSON.stringify(getters.map(v => v.name || Math.random()))} --- ${JSON.stringify(list)}`, (query, getters, list) => {
     if (!query) {
         return list;
     }
     return ramda_1.sortBy(ramda_1.prop("d"), coreGetterSearch(query, getters, list))
         .filter(({ d }) => d < 2)
         .map(ramda_1.prop("v"));
-});
-exports.searchUsingGettersPreservingOrder = ramda_1.curry((query, getters, list) => {
+}));
+exports.searchUsingGettersPreservingOrder = ramda_1.curry(ramda_1.memoizeWith((query, getters, list) => `${query} --- ${JSON.stringify(getters.map(v => v.name || Math.random()))} --- ${JSON.stringify(list)}`, (query, getters, list) => {
     if (!query) {
         return list;
     }
     return coreGetterSearch(query, getters, list)
         .filter(({ d }) => d < 2)
         .map(ramda_1.prop("v"));
-});
-exports.vagueSearchUsingGetters = ramda_1.curry((query, getters, list) => {
+}));
+exports.vagueSearchUsingGetters = ramda_1.curry(ramda_1.memoizeWith((query, getters, list) => `${query} --- ${JSON.stringify(getters.map(v => v.name || Math.random()))} --- ${JSON.stringify(list)}`, (query, getters, list) => {
     if (!query) {
         return list;
     }
     return ramda_1.sortBy(ramda_1.prop("d"), coreGetterSearch(query, getters, list))
         .filter(({ d }) => d < 3)
         .map(ramda_1.prop("v"));
-});
-exports.vagueSearchUsingGettersPreservingOrder = ramda_1.curry((query, getters, list) => {
+}));
+exports.vagueSearchUsingGettersPreservingOrder = ramda_1.curry(ramda_1.memoizeWith((query, getters, list) => `${query} --- ${JSON.stringify(getters.map(v => v.name || Math.random()))} --- ${JSON.stringify(list)}`, (query, getters, list) => {
     if (!query) {
         return list;
     }
     return coreGetterSearch(query, getters, list)
         .filter(({ d }) => d < 3)
         .map(ramda_1.prop("v"));
-});
+}));
