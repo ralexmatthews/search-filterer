@@ -1,21 +1,27 @@
 import {
   curry,
   mean,
-  memoizeWith,
   min,
   path,
   prop,
   sortBy,
-  xprod,
-  zip
+  zip,
+  complement,
+  isNil
 } from "ramda";
 
-const distance: (a: string, b: string, vague?: boolean) => number = memoizeWith(
-  (string1: string, string2: string, vague?: boolean) =>
-    string1.length > string2.length
-      ? `string1:${string1} --- string2:${string2} --- vague:${vague}`
-      : `string1:${string2} --- string2:${string1} --- vague:${vague}`,
-  (string1: string, string2: string, vague?: boolean) => {
+const distance: (a: string, b: string) => number = (() => {
+  const cache: { [key: string]: number } = {};
+
+  return (string1: string, string2: string) => {
+    const cacheKey =
+      string1.length > string2.length
+        ? `string1:${string1} --- string2:${string2}`
+        : `string1:${string2} --- string2:${string1}`;
+
+    if (cacheKey in cache) {
+      return cache[cacheKey];
+    }
     if (!string1.length || !string2.length) {
       return 0;
     }
@@ -24,14 +30,6 @@ const distance: (a: string, b: string, vague?: boolean) => number = memoizeWith(
 
     if (a === b) {
       return -2;
-    }
-
-    if (vague) {
-      const split1 = a.split(" ");
-      const split2 = b.split(" ");
-      if (split1.length > 1 && split2.length === split1.length) {
-        return mean(zip(split1, split2).map(v => distance(...v)));
-      }
     }
 
     if (a.length > b.length) {
@@ -48,6 +46,26 @@ const distance: (a: string, b: string, vague?: boolean) => number = memoizeWith(
       if (!!b.match(a)) {
         return 0;
       }
+    }
+
+    if (a.split(" ").length > 1 && b.split(" ").length > 1) {
+      let subQueries = b.split(" ");
+      let score = Infinity;
+      a.split(" ").forEach(subTerm => {
+        const subTermScores = subQueries.map(subQuery => ({
+          v: subQuery,
+          d: distance(subQuery, subTerm)
+        }));
+        const minValue = subTermScores.reduce(
+          (acc, obj) => (acc.d < obj.d ? acc : obj),
+          subTermScores[0]
+        );
+        score = mean(
+          [minValue.d].concat(score !== Infinity ? score : minValue.d)
+        );
+        subQueries = subQueries.filter(item => item !== minValue.v);
+      });
+      return score;
     }
 
     const d = [];
@@ -75,12 +93,16 @@ const distance: (a: string, b: string, vague?: boolean) => number = memoizeWith(
       }
     }
 
+    cache[cacheKey] = d[a.length][b.length];
     return d[a.length][b.length];
-  }
-);
+  };
+})();
 
-const coreSearch = (query: string, list: string[], vague?: boolean) =>
-  list.map(v => ({ v, d: distance(query, v, vague) }));
+const coreSearch = (query: string, list: string[]) =>
+  list.map(item => ({
+    v: item,
+    d: distance(query, item)
+  }));
 
 export const search = curry((query: string, list: string[]) => {
   if (!query) {
@@ -104,7 +126,7 @@ export const vagueSearch = curry((query: string, list: string[]) => {
   if (!query) {
     return list;
   }
-  return sortBy(prop("d"), coreSearch(query, list, true))
+  return sortBy(prop("d"), coreSearch(query, list))
     .filter(({ d }) => d < 3)
     .map(prop("v"));
 });
@@ -114,27 +136,29 @@ export const vagueSearchPreservingOrder = curry(
     if (!query) {
       return list;
     }
-    return coreSearch(query, list, true)
+    return coreSearch(query, list)
       .filter(({ d }) => d < 3)
       .map(prop("v"));
   }
 );
 
-const coreObjectSearch = <T>(
-  query: string,
-  keys: string[],
-  list: T[],
-  vague?: boolean
-) =>
-  list.map(item => ({
-    v: item,
-    d: xprod(
-      query.split(" "),
-      keys.map(key => path(key.split("."), item))
-    )
-      .map(([q, v]) => distance(q, `${v}`, vague))
-      .reduce(min, Infinity)
-  }));
+const coreObjectSearch = <T>(query: string, keys: string[], list: T[]) =>
+  list.map(item => {
+    const scores = keys
+      .map(key => path(key.split("."), item))
+      .filter(complement(isNil))
+      .map(term => {
+        if (typeof term !== "string") {
+          return 0;
+        }
+
+        return distance(term, query);
+      });
+    return {
+      v: item,
+      d: scores.reduce(min, Infinity)
+    };
+  });
 
 export const objectSearch = curry(
   <T>(query: string, keys: string[], list: T[]) => {
@@ -163,7 +187,7 @@ export const vagueObjectSearch = curry(
     if (!query) {
       return list;
     }
-    return sortBy(prop("d"), coreObjectSearch(query, keys, list, true))
+    return sortBy(prop("d"), coreObjectSearch(query, keys, list))
       .filter(({ d }) => d < 3)
       .map(prop("v"));
   }
@@ -174,27 +198,29 @@ export const vagueObjectSearchPreservingOrder = curry(
     if (!query) {
       return list;
     }
-    return coreObjectSearch(query, keys, list, true)
+    return coreObjectSearch(query, keys, list)
       .filter(({ d }) => d < 3)
       .map(prop("v"));
   }
 );
 
-const coreGetterSearch = <T>(
-  query: string,
-  getters: Function[],
-  list: T[],
-  vague?: boolean
-) =>
-  list.map(item => ({
-    v: item,
-    d: xprod(
-      query.split(" "),
-      getters.map(getter => getter(item))
-    )
-      .map(([q, v]) => distance(q, `${v}`, vague))
-      .reduce(min, Infinity)
-  }));
+const coreGetterSearch = <T>(query: string, getters: Function[], list: T[]) =>
+  list.map(item => {
+    const scores = getters
+      .map(getter => getter(item))
+      .filter(complement(isNil))
+      .map(term => {
+        if (typeof term !== "string") {
+          return 0;
+        }
+
+        return distance(term, query);
+      });
+    return {
+      v: item,
+      d: scores.reduce(min, Infinity)
+    };
+  });
 
 export const searchUsingGetters = curry(
   <T>(query: string, getters: Function[], list: T[]) => {
@@ -223,7 +249,7 @@ export const vagueSearchUsingGetters = curry(
     if (!query) {
       return list;
     }
-    return sortBy(prop("d"), coreGetterSearch(query, getters, list, true))
+    return sortBy(prop("d"), coreGetterSearch(query, getters, list))
       .filter(({ d }) => d < 3)
       .map(prop("v"));
   }
@@ -234,7 +260,7 @@ export const vagueSearchUsingGettersPreservingOrder = curry(
     if (!query) {
       return list;
     }
-    return coreGetterSearch(query, getters, list, true)
+    return coreGetterSearch(query, getters, list)
       .filter(({ d }) => d < 3)
       .map(prop("v"));
   }
