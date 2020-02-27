@@ -1,14 +1,16 @@
 {
   "name": "search-filterer",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "A curried memoized search library",
   "repository": "https://github.com/amatthews4851/search-filterer",
   "main": "dist/index.js",
   "author": "Alex Matthews",
   "license": "MIT",
   "scripts": {
-    "build": "tsc",
+    "build-typescript": "tsc",
     "build-docs": "browserify ./docs/main.js -o ./docs/index.js",
+    "build": "yarn build-typescript && yarn build-docs",
+    "prepublish": "yarn build",
     "test": "jest"
   },
   "dependencies": {

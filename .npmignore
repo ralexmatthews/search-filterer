@@ -1,3 +1,5 @@
 src/
 docs/
 __tests__/
+tsconfig.json
+readme.md
