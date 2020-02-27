@@ -53,9 +53,9 @@ const distance = (string1, string2) => {
     for (let i = 1; i <= a.length; i++) {
         for (let j = 1; j <= b.length; j++) {
             const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-            d[i][j] = ramda_1.min(ramda_1.min(d[i - 1][j] + 1, d[i][j - 1] + 1), d[i - 1][j - 1] + cost);
+            d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
             if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
-                d[i][j] = ramda_1.min(d[i][j], d[i - 2][j - 2] + 1);
+                d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
             }
         }
     }
@@ -69,9 +69,9 @@ exports.search = ramda_1.curry((query, list) => {
     if (!query) {
         return list;
     }
-    return ramda_1.sortBy(ramda_1.prop("d"), coreSearch(query, list))
+    return ramda_1.sortBy(({ d }) => d, coreSearch(query, list))
         .filter(({ d }) => d < 2)
-        .map(ramda_1.prop("v"));
+        .map(({ v }) => v);
 });
 exports.searchPreservingOrder = ramda_1.curry((query, list) => {
     if (!query) {
@@ -79,15 +79,15 @@ exports.searchPreservingOrder = ramda_1.curry((query, list) => {
     }
     return coreSearch(query, list)
         .filter(({ d }) => d < 2)
-        .map(ramda_1.prop("v"));
+        .map(({ v }) => v);
 });
 exports.vagueSearch = ramda_1.curry((query, list) => {
     if (!query) {
         return list;
     }
-    return ramda_1.sortBy(ramda_1.prop("d"), coreSearch(query, list))
+    return ramda_1.sortBy(({ d }) => d, coreSearch(query, list))
         .filter(({ d }) => d < 3)
-        .map(ramda_1.prop("v"));
+        .map(({ v }) => v);
 });
 exports.vagueSearchPreservingOrder = ramda_1.curry((query, list) => {
     if (!query) {
@@ -95,7 +95,7 @@ exports.vagueSearchPreservingOrder = ramda_1.curry((query, list) => {
     }
     return coreSearch(query, list)
         .filter(({ d }) => d < 3)
-        .map(ramda_1.prop("v"));
+        .map(({ v }) => v);
 });
 const coreObjectSearch = (query, keys, list) => list.map(item => {
     const scores = keys
@@ -104,16 +104,16 @@ const coreObjectSearch = (query, keys, list) => list.map(item => {
         .map(term => distance(`${term}`, query));
     return {
         v: item,
-        d: scores.reduce(ramda_1.min, Infinity)
+        d: Math.min(...scores)
     };
 });
 exports.objectSearch = ramda_1.curry((query, keys, list) => {
     if (!query) {
         return list;
     }
-    return ramda_1.sortBy(ramda_1.prop("d"), coreObjectSearch(query, keys, list))
+    return ramda_1.sortBy(({ d }) => d, coreObjectSearch(query, keys, list))
         .filter(({ d }) => d < 2)
-        .map(ramda_1.prop("v"));
+        .map(({ v }) => v);
 });
 exports.objectSearchPreservingOrder = ramda_1.curry((query, keys, list) => {
     if (!query) {
@@ -121,15 +121,15 @@ exports.objectSearchPreservingOrder = ramda_1.curry((query, keys, list) => {
     }
     return coreObjectSearch(query, keys, list)
         .filter(({ d }) => d < 2)
-        .map(ramda_1.prop("v"));
+        .map(({ v }) => v);
 });
 exports.vagueObjectSearch = ramda_1.curry((query, keys, list) => {
     if (!query) {
         return list;
     }
-    return ramda_1.sortBy(ramda_1.prop("d"), coreObjectSearch(query, keys, list))
+    return ramda_1.sortBy(({ d }) => d, coreObjectSearch(query, keys, list))
         .filter(({ d }) => d < 3)
-        .map(ramda_1.prop("v"));
+        .map(({ v }) => v);
 });
 exports.vagueObjectSearchPreservingOrder = ramda_1.curry((query, keys, list) => {
     if (!query) {
@@ -137,7 +137,7 @@ exports.vagueObjectSearchPreservingOrder = ramda_1.curry((query, keys, list) => 
     }
     return coreObjectSearch(query, keys, list)
         .filter(({ d }) => d < 3)
-        .map(ramda_1.prop("v"));
+        .map(({ v }) => v);
 });
 const coreGetterSearch = (query, getters, list) => list.map(item => {
     const scores = getters
@@ -146,16 +146,16 @@ const coreGetterSearch = (query, getters, list) => list.map(item => {
         .map(term => distance(term, query));
     return {
         v: item,
-        d: scores.reduce(ramda_1.min, Infinity)
+        d: Math.min(...scores)
     };
 });
 exports.searchUsingGetters = ramda_1.curry((query, getters, list) => {
     if (!query) {
         return list;
     }
-    return ramda_1.sortBy(ramda_1.prop("d"), coreGetterSearch(query, getters, list))
+    return ramda_1.sortBy(({ d }) => d, coreGetterSearch(query, getters, list))
         .filter(({ d }) => d < 2)
-        .map(ramda_1.prop("v"));
+        .map(({ v }) => v);
 });
 exports.searchUsingGettersPreservingOrder = ramda_1.curry((query, getters, list) => {
     if (!query) {
@@ -163,15 +163,15 @@ exports.searchUsingGettersPreservingOrder = ramda_1.curry((query, getters, list)
     }
     return coreGetterSearch(query, getters, list)
         .filter(({ d }) => d < 2)
-        .map(ramda_1.prop("v"));
+        .map(({ v }) => v);
 });
 exports.vagueSearchUsingGetters = ramda_1.curry((query, getters, list) => {
     if (!query) {
         return list;
     }
-    return ramda_1.sortBy(ramda_1.prop("d"), coreGetterSearch(query, getters, list))
+    return ramda_1.sortBy(({ d }) => d, coreGetterSearch(query, getters, list))
         .filter(({ d }) => d < 3)
-        .map(ramda_1.prop("v"));
+        .map(({ v }) => v);
 });
 exports.vagueSearchUsingGettersPreservingOrder = ramda_1.curry((query, getters, list) => {
     if (!query) {
@@ -179,7 +179,7 @@ exports.vagueSearchUsingGettersPreservingOrder = ramda_1.curry((query, getters, 
     }
     return coreGetterSearch(query, getters, list)
         .filter(({ d }) => d < 3)
-        .map(ramda_1.prop("v"));
+        .map(({ v }) => v);
 });
 
 },{"ramda":91}],2:[function(require,module,exports){
