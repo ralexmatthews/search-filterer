@@ -10,7 +10,7 @@ const {
   searchUsingGetters,
   searchUsingGettersPreservingOrder,
   vagueSearchUsingGetters,
-  vagueSearchUsingGettersPreservingOrder
+  vagueSearchUsingGettersPreservingOrder,
 } = require("../dist");
 const data = require("./__mocks__/data");
 
@@ -259,8 +259,8 @@ describe("objectSearch", () => {
 
   it("should sort the results by relevance", () => {
     const results = objectSearch("rub", ["foo.bar", "baz"], data.objectList);
-    expect(results.findIndex(item => item.foo.bar === "rub")).toBeLessThan(
-      results.findIndex(item => item.foo.bar === "tub")
+    expect(results.findIndex((item) => item.foo.bar === "rub")).toBeLessThan(
+      results.findIndex((item) => item.foo.bar === "tub")
     );
   });
 
@@ -272,19 +272,19 @@ describe("objectSearch", () => {
   it("should find exact matches", () => {
     const results = objectSearch("mom", ["foo.bar", "baz"], data.objectList);
     expect(
-      !!results.find(item => item.foo.bar === "mom") &&
-        !!results.find(item => item.foo.bar === "momentous")
+      !!results.find((item) => item.foo.bar === "mom") &&
+        !!results.find((item) => item.foo.bar === "momentous")
     ).toBe(true);
   });
 
   it("should find matches with one typo", () => {
     const results = objectSearch("tub", ["foo.bar", "baz"], data.objectList);
-    expect(!!results.find(item => item.foo.bar === "rub")).toBe(true);
+    expect(!!results.find((item) => item.foo.bar === "rub")).toBe(true);
   });
 
   it("should not include non-matches", () => {
     const results = objectSearch("mom", ["foo.bar", "baz"], data.objectList);
-    expect(!!results.find(item => item.foo.bar === "fax")).toBe(false);
+    expect(!!results.find((item) => item.foo.bar === "fax")).toBe(false);
   });
 
   it("should search across multiple keys", () => {
@@ -294,8 +294,20 @@ describe("objectSearch", () => {
       data.multiKeyObjectList
     );
     expect(
-      !!results.find(item => item.foo.bar === "mom") &&
-        !!results.find(item => item.baz === "mom")
+      !!results.find((item) => item.foo.bar === "mom") &&
+        !!results.find((item) => item.baz === "mom")
+    ).toBe(true);
+  });
+
+  it("should search in nested arrays", () => {
+    const results = objectSearch(
+      "mom",
+      ["foo.bar", "baz"],
+      data.multiKeyObjectListWithArray
+    );
+    expect(
+      !!results.find((item) => item.foo[0].bar === "mom") &&
+        !!results.find((item) => item.baz === "mom")
     ).toBe(true);
   });
 });
@@ -316,8 +328,8 @@ describe("objectSearchPreservingOrder", () => {
       ["foo.bar", "baz"],
       data.objectList
     );
-    expect(results.findIndex(item => item.foo.bar === "rub")).toBeGreaterThan(
-      results.findIndex(item => item.foo.bar === "tub")
+    expect(results.findIndex((item) => item.foo.bar === "rub")).toBeGreaterThan(
+      results.findIndex((item) => item.foo.bar === "tub")
     );
   });
 
@@ -337,8 +349,8 @@ describe("objectSearchPreservingOrder", () => {
       data.objectList
     );
     expect(
-      !!results.find(item => item.foo.bar === "mom") &&
-        !!results.find(item => item.foo.bar === "momentous")
+      !!results.find((item) => item.foo.bar === "mom") &&
+        !!results.find((item) => item.foo.bar === "momentous")
     ).toBe(true);
   });
 
@@ -348,7 +360,7 @@ describe("objectSearchPreservingOrder", () => {
       ["foo.bar", "baz"],
       data.objectList
     );
-    expect(!!results.find(item => item.foo.bar === "rub")).toBe(true);
+    expect(!!results.find((item) => item.foo.bar === "rub")).toBe(true);
   });
 
   it("should not include non-matches", () => {
@@ -357,7 +369,7 @@ describe("objectSearchPreservingOrder", () => {
       ["foo.bar", "baz"],
       data.objectList
     );
-    expect(!!results.find(item => item.foo.bar === "fax")).toBe(false);
+    expect(!!results.find((item) => item.foo.bar === "fax")).toBe(false);
   });
 
   it("should search across multiple keys", () => {
@@ -367,8 +379,20 @@ describe("objectSearchPreservingOrder", () => {
       data.multiKeyObjectList
     );
     expect(
-      !!results.find(item => item.foo.bar === "mom") &&
-        !!results.find(item => item.baz === "mom")
+      !!results.find((item) => item.foo.bar === "mom") &&
+        !!results.find((item) => item.baz === "mom")
+    ).toBe(true);
+  });
+
+  it("should search in nested arrays", () => {
+    const results = objectSearchPreservingOrder(
+      "mom",
+      ["foo.bar", "baz"],
+      data.multiKeyObjectListWithArray
+    );
+    expect(
+      !!results.find((item) => item.foo[0].bar === "mom") &&
+        !!results.find((item) => item.baz === "mom")
     ).toBe(true);
   });
 });
@@ -385,8 +409,8 @@ describe("vagueObjectSearch", () => {
       ["foo.bar", "baz"],
       data.objectList
     );
-    expect(results.findIndex(item => item.foo.bar === "rub")).toBeLessThan(
-      results.findIndex(item => item.foo.bar === "tub")
+    expect(results.findIndex((item) => item.foo.bar === "rub")).toBeLessThan(
+      results.findIndex((item) => item.foo.bar === "tub")
     );
   });
 
@@ -406,8 +430,8 @@ describe("vagueObjectSearch", () => {
       data.objectList
     );
     expect(
-      !!results.find(item => item.foo.bar === "mom") &&
-        !!results.find(item => item.foo.bar === "momentous")
+      !!results.find((item) => item.foo.bar === "mom") &&
+        !!results.find((item) => item.foo.bar === "momentous")
     ).toBe(true);
   });
 
@@ -417,7 +441,7 @@ describe("vagueObjectSearch", () => {
       ["foo.bar", "baz"],
       data.objectList
     );
-    expect(!!results.find(item => item.foo.bar === "rub")).toBe(true);
+    expect(!!results.find((item) => item.foo.bar === "rub")).toBe(true);
   });
 
   it("should find matches with two typos", () => {
@@ -426,7 +450,7 @@ describe("vagueObjectSearch", () => {
       ["foo.bar", "baz"],
       data.objectList
     );
-    expect(!!results.find(item => item.foo.bar === "ten")).toBe(true);
+    expect(!!results.find((item) => item.foo.bar === "ten")).toBe(true);
   });
 
   it("should not include non-matches", () => {
@@ -435,7 +459,7 @@ describe("vagueObjectSearch", () => {
       ["foo.bar", "baz"],
       data.objectList
     );
-    expect(!!results.find(item => item.foo.bar === "fax")).toBe(false);
+    expect(!!results.find((item) => item.foo.bar === "fax")).toBe(false);
   });
 
   it("should search across multiple keys", () => {
@@ -445,8 +469,20 @@ describe("vagueObjectSearch", () => {
       data.multiKeyObjectList
     );
     expect(
-      !!results.find(item => item.foo.bar === "mom") &&
-        !!results.find(item => item.baz === "mom")
+      !!results.find((item) => item.foo.bar === "mom") &&
+        !!results.find((item) => item.baz === "mom")
+    ).toBe(true);
+  });
+
+  it("should search in nested arrays", () => {
+    const results = vagueObjectSearch(
+      "mom",
+      ["foo.bar", "baz"],
+      data.multiKeyObjectListWithArray
+    );
+    expect(
+      !!results.find((item) => item.foo[0].bar === "mom") &&
+        !!results.find((item) => item.baz === "mom")
     ).toBe(true);
   });
 });
@@ -467,8 +503,8 @@ describe("vagueObjectSearchPreservingOrder", () => {
       ["foo.bar", "baz"],
       data.objectList
     );
-    expect(results.findIndex(item => item.foo.bar === "rub")).toBeGreaterThan(
-      results.findIndex(item => item.foo.bar === "tub")
+    expect(results.findIndex((item) => item.foo.bar === "rub")).toBeGreaterThan(
+      results.findIndex((item) => item.foo.bar === "tub")
     );
   });
 
@@ -488,8 +524,8 @@ describe("vagueObjectSearchPreservingOrder", () => {
       data.objectList
     );
     expect(
-      !!results.find(item => item.foo.bar === "mom") &&
-        !!results.find(item => item.foo.bar === "momentous")
+      !!results.find((item) => item.foo.bar === "mom") &&
+        !!results.find((item) => item.foo.bar === "momentous")
     ).toBe(true);
   });
 
@@ -499,7 +535,7 @@ describe("vagueObjectSearchPreservingOrder", () => {
       ["foo.bar", "baz"],
       data.objectList
     );
-    expect(!!results.find(item => item.foo.bar === "rub")).toBe(true);
+    expect(!!results.find((item) => item.foo.bar === "rub")).toBe(true);
   });
 
   it("should find matches with two typos", () => {
@@ -508,7 +544,7 @@ describe("vagueObjectSearchPreservingOrder", () => {
       ["foo.bar", "baz"],
       data.objectList
     );
-    expect(!!results.find(item => item.foo.bar === "ten")).toBe(true);
+    expect(!!results.find((item) => item.foo.bar === "ten")).toBe(true);
   });
 
   it("should not include non-matches", () => {
@@ -517,7 +553,7 @@ describe("vagueObjectSearchPreservingOrder", () => {
       ["foo.bar", "baz"],
       data.objectList
     );
-    expect(!!results.find(item => item.foo.bar === "fax")).toBe(false);
+    expect(!!results.find((item) => item.foo.bar === "fax")).toBe(false);
   });
 
   it("should search across multiple keys", () => {
@@ -527,8 +563,20 @@ describe("vagueObjectSearchPreservingOrder", () => {
       data.multiKeyObjectList
     );
     expect(
-      !!results.find(item => item.foo.bar === "mom") &&
-        !!results.find(item => item.baz === "mom")
+      !!results.find((item) => item.foo.bar === "mom") &&
+        !!results.find((item) => item.baz === "mom")
+    ).toBe(true);
+  });
+
+  it("should search in nested arrays", () => {
+    const results = vagueObjectSearchPreservingOrder(
+      "mom",
+      ["foo.bar", "baz"],
+      data.multiKeyObjectListWithArray
+    );
+    expect(
+      !!results.find((item) => item.foo[0].bar === "mom") &&
+        !!results.find((item) => item.baz === "mom")
     ).toBe(true);
   });
 });
@@ -537,7 +585,7 @@ describe("searchUsingGetters", () => {
   it("should provide the whole list if no query", () => {
     const results = searchUsingGetters(
       "",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
     expect(results.length).toEqual(data.stringList.length);
@@ -546,18 +594,18 @@ describe("searchUsingGetters", () => {
   it("should sort the results by relevance", () => {
     const results = searchUsingGetters(
       "rub",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
-    expect(results.findIndex(item => item.foo.bar === "rub")).toBeLessThan(
-      results.findIndex(item => item.foo.bar === "tub")
+    expect(results.findIndex((item) => item.foo.bar === "rub")).toBeLessThan(
+      results.findIndex((item) => item.foo.bar === "tub")
     );
   });
 
   it("should filter some items if a query is provided", () => {
     const results = searchUsingGetters(
       "mom",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
     expect(results.length).toBeLessThan(data.objectList.length);
@@ -566,42 +614,54 @@ describe("searchUsingGetters", () => {
   it("should find exact matches", () => {
     const results = searchUsingGetters(
       "mom",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
     expect(
-      !!results.find(item => item.foo.bar === "mom") &&
-        !!results.find(item => item.foo.bar === "momentous")
+      !!results.find((item) => item.foo.bar === "mom") &&
+        !!results.find((item) => item.foo.bar === "momentous")
     ).toBe(true);
   });
 
   it("should find matches with one typo", () => {
     const results = searchUsingGetters(
       "tub",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
-    expect(!!results.find(item => item.foo.bar === "rub")).toBe(true);
+    expect(!!results.find((item) => item.foo.bar === "rub")).toBe(true);
   });
 
   it("should not include non-matches", () => {
     const results = searchUsingGetters(
       "mom",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
-    expect(!!results.find(item => item.foo.bar === "fax")).toBe(false);
+    expect(!!results.find((item) => item.foo.bar === "fax")).toBe(false);
   });
 
   it("should search across multiple keys", () => {
     const results = searchUsingGetters(
       "mom",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.multiKeyObjectList
     );
     expect(
-      !!results.find(item => item.foo.bar === "mom") &&
-        !!results.find(item => item.baz === "mom")
+      !!results.find((item) => item.foo.bar === "mom") &&
+        !!results.find((item) => item.baz === "mom")
+    ).toBe(true);
+  });
+
+  it("should search in nested arrays", () => {
+    const results = searchUsingGetters(
+      "mom",
+      [(item) => item.foo[0].bar, (item) => item.baz],
+      data.multiKeyObjectListWithArray
+    );
+    expect(
+      !!results.find((item) => item.foo[0].bar === "mom") &&
+        !!results.find((item) => item.baz === "mom")
     ).toBe(true);
   });
 });
@@ -610,7 +670,7 @@ describe("searchUsingGettersPreservingOrder", () => {
   it("should provide the whole list if no query", () => {
     const results = searchUsingGettersPreservingOrder(
       "",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
     expect(results.length).toEqual(data.stringList.length);
@@ -619,18 +679,18 @@ describe("searchUsingGettersPreservingOrder", () => {
   it("should sort the results by relevance", () => {
     const results = searchUsingGettersPreservingOrder(
       "rub",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
-    expect(results.findIndex(item => item.foo.bar === "rub")).toBeGreaterThan(
-      results.findIndex(item => item.foo.bar === "tub")
+    expect(results.findIndex((item) => item.foo.bar === "rub")).toBeGreaterThan(
+      results.findIndex((item) => item.foo.bar === "tub")
     );
   });
 
   it("should filter some items if a query is provided", () => {
     const results = searchUsingGettersPreservingOrder(
       "mom",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
     expect(results.length).toBeLessThan(data.objectList.length);
@@ -639,42 +699,54 @@ describe("searchUsingGettersPreservingOrder", () => {
   it("should find exact matches", () => {
     const results = searchUsingGettersPreservingOrder(
       "mom",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
     expect(
-      !!results.find(item => item.foo.bar === "mom") &&
-        !!results.find(item => item.foo.bar === "momentous")
+      !!results.find((item) => item.foo.bar === "mom") &&
+        !!results.find((item) => item.foo.bar === "momentous")
     ).toBe(true);
   });
 
   it("should find matches with one typo", () => {
     const results = searchUsingGettersPreservingOrder(
       "tub",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
-    expect(!!results.find(item => item.foo.bar === "rub")).toBe(true);
+    expect(!!results.find((item) => item.foo.bar === "rub")).toBe(true);
   });
 
   it("should not include non-matches", () => {
     const results = searchUsingGettersPreservingOrder(
       "mom",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
-    expect(!!results.find(item => item.foo.bar === "fax")).toBe(false);
+    expect(!!results.find((item) => item.foo.bar === "fax")).toBe(false);
   });
 
   it("should search across multiple keys", () => {
     const results = searchUsingGettersPreservingOrder(
       "mom",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.multiKeyObjectList
     );
     expect(
-      !!results.find(item => item.foo.bar === "mom") &&
-        !!results.find(item => item.baz === "mom")
+      !!results.find((item) => item.foo.bar === "mom") &&
+        !!results.find((item) => item.baz === "mom")
+    ).toBe(true);
+  });
+
+  it("should search in nested arrays", () => {
+    const results = searchUsingGettersPreservingOrder(
+      "mom",
+      [(item) => item.foo[0].bar, (item) => item.baz],
+      data.multiKeyObjectListWithArray
+    );
+    expect(
+      !!results.find((item) => item.foo[0].bar === "mom") &&
+        !!results.find((item) => item.baz === "mom")
     ).toBe(true);
   });
 });
@@ -683,7 +755,7 @@ describe("vagueSearchUsingGetters", () => {
   it("should provide the whole list if no query", () => {
     const results = vagueSearchUsingGetters(
       "",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
     expect(results.length).toEqual(data.stringList.length);
@@ -692,18 +764,18 @@ describe("vagueSearchUsingGetters", () => {
   it("should sort the results by relevance", () => {
     const results = vagueSearchUsingGetters(
       "rub",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
-    expect(results.findIndex(item => item.foo.bar === "rub")).toBeLessThan(
-      results.findIndex(item => item.foo.bar === "tub")
+    expect(results.findIndex((item) => item.foo.bar === "rub")).toBeLessThan(
+      results.findIndex((item) => item.foo.bar === "tub")
     );
   });
 
   it("should filter some items if a query is provided", () => {
     const results = vagueSearchUsingGetters(
       "mom",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
     expect(results.length).toBeLessThan(data.objectList.length);
@@ -712,51 +784,63 @@ describe("vagueSearchUsingGetters", () => {
   it("should find exact matches", () => {
     const results = vagueSearchUsingGetters(
       "mom",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
     expect(
-      !!results.find(item => item.foo.bar === "mom") &&
-        !!results.find(item => item.foo.bar === "momentous")
+      !!results.find((item) => item.foo.bar === "mom") &&
+        !!results.find((item) => item.foo.bar === "momentous")
     ).toBe(true);
   });
 
   it("should find matches with one typo", () => {
     const results = vagueSearchUsingGetters(
       "tub",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
-    expect(!!results.find(item => item.foo.bar === "rub")).toBe(true);
+    expect(!!results.find((item) => item.foo.bar === "rub")).toBe(true);
   });
 
   it("should find matches with two typos", () => {
     const results = vagueSearchUsingGetters(
       "tub",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
-    expect(!!results.find(item => item.foo.bar === "ten")).toBe(true);
+    expect(!!results.find((item) => item.foo.bar === "ten")).toBe(true);
   });
 
   it("should not include non-matches", () => {
     const results = vagueSearchUsingGetters(
       "mom",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
-    expect(!!results.find(item => item.foo.bar === "fax")).toBe(false);
+    expect(!!results.find((item) => item.foo.bar === "fax")).toBe(false);
   });
 
   it("should search across multiple keys", () => {
     const results = vagueSearchUsingGetters(
       "mom",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.multiKeyObjectList
     );
     expect(
-      !!results.find(item => item.foo.bar === "mom") &&
-        !!results.find(item => item.baz === "mom")
+      !!results.find((item) => item.foo.bar === "mom") &&
+        !!results.find((item) => item.baz === "mom")
+    ).toBe(true);
+  });
+
+  it("should search in nested arrays", () => {
+    const results = vagueSearchUsingGetters(
+      "mom",
+      [(item) => item.foo[0].bar, (item) => item.baz],
+      data.multiKeyObjectListWithArray
+    );
+    expect(
+      !!results.find((item) => item.foo[0].bar === "mom") &&
+        !!results.find((item) => item.baz === "mom")
     ).toBe(true);
   });
 });
@@ -765,7 +849,7 @@ describe("vagueSearchUsingGettersPreservingOrder", () => {
   it("should provide the whole list if no query", () => {
     const results = vagueSearchUsingGettersPreservingOrder(
       "",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
     expect(results.length).toEqual(data.stringList.length);
@@ -774,18 +858,18 @@ describe("vagueSearchUsingGettersPreservingOrder", () => {
   it("should sort the results by relevance", () => {
     const results = vagueSearchUsingGettersPreservingOrder(
       "rub",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
-    expect(results.findIndex(item => item.foo.bar === "rub")).toBeGreaterThan(
-      results.findIndex(item => item.foo.bar === "tub")
+    expect(results.findIndex((item) => item.foo.bar === "rub")).toBeGreaterThan(
+      results.findIndex((item) => item.foo.bar === "tub")
     );
   });
 
   it("should filter some items if a query is provided", () => {
     const results = vagueSearchUsingGettersPreservingOrder(
       "mom",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
     expect(results.length).toBeLessThan(data.objectList.length);
@@ -794,51 +878,63 @@ describe("vagueSearchUsingGettersPreservingOrder", () => {
   it("should find exact matches", () => {
     const results = vagueSearchUsingGettersPreservingOrder(
       "mom",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
     expect(
-      !!results.find(item => item.foo.bar === "mom") &&
-        !!results.find(item => item.foo.bar === "momentous")
+      !!results.find((item) => item.foo.bar === "mom") &&
+        !!results.find((item) => item.foo.bar === "momentous")
     ).toBe(true);
   });
 
   it("should find matches with one typo", () => {
     const results = vagueSearchUsingGettersPreservingOrder(
       "tub",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
-    expect(!!results.find(item => item.foo.bar === "rub")).toBe(true);
+    expect(!!results.find((item) => item.foo.bar === "rub")).toBe(true);
   });
 
   it("should find matches with two typos", () => {
     const results = vagueSearchUsingGettersPreservingOrder(
       "tub",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
-    expect(!!results.find(item => item.foo.bar === "ten")).toBe(true);
+    expect(!!results.find((item) => item.foo.bar === "ten")).toBe(true);
   });
 
   it("should not include non-matches", () => {
     const results = vagueSearchUsingGettersPreservingOrder(
       "mom",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.objectList
     );
-    expect(!!results.find(item => item.foo.bar === "fax")).toBe(false);
+    expect(!!results.find((item) => item.foo.bar === "fax")).toBe(false);
   });
 
   it("should search across multiple keys", () => {
     const results = vagueSearchUsingGettersPreservingOrder(
       "mom",
-      [item => item.foo.bar, item => item.baz],
+      [(item) => item.foo.bar, (item) => item.baz],
       data.multiKeyObjectList
     );
     expect(
-      !!results.find(item => item.foo.bar === "mom") &&
-        !!results.find(item => item.baz === "mom")
+      !!results.find((item) => item.foo.bar === "mom") &&
+        !!results.find((item) => item.baz === "mom")
+    ).toBe(true);
+  });
+
+  it("should search in nested arrays", () => {
+    const results = vagueSearchUsingGettersPreservingOrder(
+      "mom",
+      [(item) => item.foo[0].bar, (item) => item.baz],
+      data.multiKeyObjectListWithArray
+    );
+    expect(
+      !!results.find((item) => item.foo[0].bar === "mom") &&
+        !!results.find((item) => item.baz === "mom")
     ).toBe(true);
   });
 });

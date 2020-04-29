@@ -1,4 +1,4 @@
-import { curry, path, sortBy } from "ramda";
+import { path, sortBy } from "ramda";
 
 const distance = (string1: string, string2: string) => {
   const a = string1.trim().toLowerCase();
@@ -32,10 +32,10 @@ const distance = (string1: string, string2: string) => {
   if (aWords.length > 1 || bWords.length > 1) {
     let subQueries = aWords.length >= bWords.length ? aWords : bWords;
     let score = Infinity;
-    (aWords.length < bWords.length ? aWords : bWords).forEach(subTerm => {
-      const subTermScores = subQueries.map(subQuery => ({
+    (aWords.length < bWords.length ? aWords : bWords).forEach((subTerm) => {
+      const subTermScores = subQueries.map((subQuery) => ({
         v: subQuery,
-        d: distance(subQuery, subTerm)
+        d: distance(subQuery, subTerm),
       }));
       const minValue = subTermScores.reduce(
         (acc, obj) => (acc.d < obj.d ? acc : obj),
@@ -75,162 +75,249 @@ const distance = (string1: string, string2: string) => {
   return d[a.length][b.length];
 };
 
-const coreSearch = (query: string, list: string[]) =>
-  list.map(item => ({
-    v: item,
-    d: distance(query, item)
-  }));
+type Score<A> = {
+  item: A;
+  distance: number;
+};
 
-export const search = curry((query: string, list: string[]) => {
-  if (!query) {
-    return list;
+const scoreListOfStrings = (query: string, list: string[]) =>
+  list.map(
+    (item) =>
+      ({
+        item,
+        distance: distance(query, item),
+      } as Score<string>)
+  );
+
+/** For taking 1 item, 1 path, and returning an array of strings to score */
+const getListOfItemsToScore = <A>(item: A, path: string[]): string[] => {
+  if (path.length === 0) {
+    return [];
   }
-  return sortBy(({ d }) => d, coreSearch(query, list))
-    .filter(({ d }) => d < 2)
-    .map(({ v }) => v);
-});
 
-export const searchPreservingOrder = curry((query: string, list: string[]) => {
-  if (!query) {
-    return list;
-  }
-  return coreSearch(query, list)
-    .filter(({ d }) => d < 2)
-    .map(({ v }) => v);
-});
-
-export const vagueSearch = curry((query: string, list: string[]) => {
-  if (!query) {
-    return list;
-  }
-  return sortBy(({ d }) => d, coreSearch(query, list))
-    .filter(({ d }) => d < 3)
-    .map(({ v }) => v);
-});
-
-export const vagueSearchPreservingOrder = curry(
-  (query: string, list: string[]) => {
-    if (!query) {
-      return list;
+  if (path.length === 1) {
+    const newItem = item[path[0] as keyof A];
+    if (Array.isArray(newItem)) {
+      if (typeof newItem[0] !== "string") {
+        return [];
+      }
+      return newItem;
     }
-    return coreSearch(query, list)
-      .filter(({ d }) => d < 3)
-      .map(({ v }) => v);
-  }
-);
-
-const coreObjectSearch = <T>(query: string, keys: string[], list: T[]) =>
-  list.map(item => {
-    const scores = keys
-      .map(key => path(key.split("."), item))
-      .filter(v => typeof v === "string")
-      .map(term => distance(`${term}`, query));
-    return {
-      v: item,
-      d: Math.min(...scores)
-    };
-  });
-
-export const objectSearch = curry(
-  <T>(query: string, keys: string[], list: T[]) => {
-    if (!query) {
-      return list;
+    if (typeof newItem !== "string") {
+      return [];
     }
-    return sortBy(({ d }) => d, coreObjectSearch(query, keys, list))
-      .filter(({ d }) => d < 2)
-      .map(({ v }) => v);
+    return [newItem];
   }
-);
 
-export const objectSearchPreservingOrder = curry(
-  <T>(query: string, keys: string[], list: T[]) => {
-    if (!query) {
-      return list;
-    }
-    return coreObjectSearch(query, keys, list)
-      .filter(({ d }) => d < 2)
-      .map(({ v }) => v);
-  }
-);
+  const newItem = item[path[0] as keyof A];
 
-export const vagueObjectSearch = curry(
-  <T>(query: string, keys: string[], list: T[]) => {
-    if (!query) {
-      return list;
-    }
-    return sortBy(({ d }) => d, coreObjectSearch(query, keys, list))
-      .filter(({ d }) => d < 3)
-      .map(({ v }) => v);
-  }
-);
+  return Array.isArray(newItem)
+    ? newItem.reduce<string[]>(
+        (totalArray, subItem) =>
+          totalArray.concat(getListOfItemsToScore(subItem, path.slice(1))),
+        []
+      )
+    : getListOfItemsToScore(newItem, path.slice(1));
+};
 
-export const vagueObjectSearchPreservingOrder = curry(
-  <T>(query: string, keys: string[], list: T[]) => {
-    if (!query) {
-      return list;
-    }
-    return coreObjectSearch(query, keys, list)
-      .filter(({ d }) => d < 3)
-      .map(({ v }) => v);
-  }
-);
-
-const coreGetterSearch = <T>(
+const scoreListOfObjectsWithKeys = <A>(
   query: string,
-  getters: [(item: T) => string],
-  list: T[]
+  keys: string[],
+  list: A[]
 ) =>
-  list.map(item => {
-    const scores = getters
-      .map(getter => getter(item))
-      .filter(v => typeof v === "string")
-      .map(term => distance(term, query));
-    return {
-      v: item,
-      d: Math.min(...scores)
-    };
-  });
+  list.map(
+    (item) =>
+      ({
+        item,
+        distance: Math.min(
+          ...keys.map((key) => {
+            const itemsToScore = getListOfItemsToScore(item, key.split("."));
 
-export const searchUsingGetters = curry(
-  <T>(query: string, getters: [(item: T) => string], list: T[]) => {
-    if (!query) {
-      return list;
-    }
-    return sortBy(({ d }) => d, coreGetterSearch(query, getters, list))
-      .filter(({ d }) => d < 2)
-      .map(({ v }) => v);
-  }
-);
+            return Math.min(
+              ...itemsToScore.map((subItem) => distance(query, subItem))
+            );
+          })
+        ),
+      } as Score<A>)
+  );
 
-export const searchUsingGettersPreservingOrder = curry(
-  <T>(query: string, getters: [(item: T) => string], list: T[]) => {
-    if (!query) {
-      return list;
-    }
-    return coreGetterSearch(query, getters, list)
-      .filter(({ d }) => d < 2)
-      .map(({ v }) => v);
-  }
-);
+const scoreListOfObjectsWithGetters = <A>(
+  query: string,
+  getters: ((item: A) => string | string[])[],
+  list: A[]
+) =>
+  list.map(
+    (item) =>
+      ({
+        item,
+        distance: Math.min(
+          ...getters.map((getter) => {
+            const itemsToScore = getter(item);
 
-export const vagueSearchUsingGetters = curry(
-  <T>(query: string, getters: [(item: T) => string], list: T[]) => {
-    if (!query) {
-      return list;
-    }
-    return sortBy(({ d }) => d, coreGetterSearch(query, getters, list))
-      .filter(({ d }) => d < 3)
-      .map(({ v }) => v);
-  }
-);
+            if (!itemsToScore) {
+              return Infinity;
+            }
 
-export const vagueSearchUsingGettersPreservingOrder = curry(
-  <T>(query: string, getters: [(item: T) => string], list: T[]) => {
-    if (!query) {
-      return list;
-    }
-    return coreGetterSearch(query, getters, list)
-      .filter(({ d }) => d < 3)
-      .map(({ v }) => v);
+            if (Array.isArray(itemsToScore)) {
+              return itemsToScore[0]
+                ? Math.min(
+                    ...itemsToScore
+                      .filter(Boolean)
+                      .map((subItem) => distance(query, subItem))
+                  )
+                : Infinity;
+            }
+
+            return distance(query, itemsToScore);
+          })
+        ),
+      } as Score<A>)
+  );
+
+export const search = (query: string, list: string[]) => {
+  if (!query) {
+    return list;
   }
-);
+  return sortBy(({ distance }) => distance, scoreListOfStrings(query, list))
+    .filter(({ distance }) => distance < 2)
+    .map(({ item }) => item);
+};
+
+export const searchPreservingOrder = (query: string, list: string[]) => {
+  if (!query) {
+    return list;
+  }
+  return scoreListOfStrings(query, list)
+    .filter(({ distance }) => distance < 2)
+    .map(({ item }) => item);
+};
+
+export const vagueSearch = (query: string, list: string[]) => {
+  if (!query) {
+    return list;
+  }
+  return sortBy(({ distance }) => distance, scoreListOfStrings(query, list))
+    .filter(({ distance }) => distance < 3)
+    .map(({ item }) => item);
+};
+
+export const vagueSearchPreservingOrder = (query: string, list: string[]) => {
+  if (!query) {
+    return list;
+  }
+  return scoreListOfStrings(query, list)
+    .filter(({ distance }) => distance < 3)
+    .map(({ item }) => item);
+};
+
+export const objectSearch = <T>(query: string, keys: string[], list: T[]) => {
+  if (!query) {
+    return list;
+  }
+  return sortBy(
+    ({ distance }) => distance,
+    scoreListOfObjectsWithKeys(query, keys, list)
+  )
+    .filter(({ distance }) => distance < 2)
+    .map(({ item }) => item);
+};
+
+export const objectSearchPreservingOrder = <T>(
+  query: string,
+  keys: string[],
+  list: T[]
+) => {
+  if (!query) {
+    return list;
+  }
+  return scoreListOfObjectsWithKeys(query, keys, list)
+    .filter(({ distance }) => distance < 2)
+    .map(({ item }) => item);
+};
+
+export const vagueObjectSearch = <T>(
+  query: string,
+  keys: string[],
+  list: T[]
+) => {
+  if (!query) {
+    return list;
+  }
+  return sortBy(
+    ({ distance }) => distance,
+    scoreListOfObjectsWithKeys(query, keys, list)
+  )
+    .filter(({ distance }) => distance < 3)
+    .map(({ item }) => item);
+};
+
+export const vagueObjectSearchPreservingOrder = <T>(
+  query: string,
+  keys: string[],
+  list: T[]
+) => {
+  if (!query) {
+    return list;
+  }
+  return scoreListOfObjectsWithKeys(query, keys, list)
+    .filter(({ distance }) => distance < 3)
+    .map(({ item }) => item);
+};
+
+export const searchUsingGetters = <T>(
+  query: string,
+  getters: ((item: T) => string | string[])[],
+  list: T[]
+) => {
+  if (!query) {
+    return list;
+  }
+  return sortBy(
+    ({ distance }) => distance,
+    scoreListOfObjectsWithGetters(query, getters, list)
+  )
+    .filter(({ distance }) => distance < 2)
+    .map(({ item }) => item);
+};
+
+export const searchUsingGettersPreservingOrder = <T>(
+  query: string,
+  getters: ((item: T) => string | string[])[],
+  list: T[]
+) => {
+  if (!query) {
+    return list;
+  }
+  return scoreListOfObjectsWithGetters(query, getters, list)
+    .filter(({ distance }) => distance < 2)
+    .map(({ item }) => item);
+};
+
+export const vagueSearchUsingGetters = <T>(
+  query: string,
+  getters: ((item: T) => string | string[])[],
+  list: T[]
+) => {
+  if (!query) {
+    return list;
+  }
+  return sortBy(
+    ({ distance }) => distance,
+    scoreListOfObjectsWithGetters(query, getters, list)
+  )
+    .filter(({ distance }) => distance < 3)
+    .map(({ item }) => item);
+};
+
+export const vagueSearchUsingGettersPreservingOrder = <T>(
+  query: string,
+  getters: ((item: T) => string | string[])[],
+  list: T[]
+) => {
+  if (!query) {
+    return list;
+  }
+  return scoreListOfObjectsWithGetters(query, getters, list)
+    .filter(({ distance }) => distance < 3)
+    .map(({ item }) => item);
+};

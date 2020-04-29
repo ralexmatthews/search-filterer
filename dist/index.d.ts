@@ -1,13 +1,12 @@
-/// <reference types="ts-toolbelt" />
-export declare const search: import("Function/Curry").Curry<(query: string, list: string[]) => string[]>;
-export declare const searchPreservingOrder: import("Function/Curry").Curry<(query: string, list: string[]) => string[]>;
-export declare const vagueSearch: import("Function/Curry").Curry<(query: string, list: string[]) => string[]>;
-export declare const vagueSearchPreservingOrder: import("Function/Curry").Curry<(query: string, list: string[]) => string[]>;
-export declare const objectSearch: import("Function/Curry").Curry<(<T>(query: string, keys: string[], list: T[]) => T[])>;
-export declare const objectSearchPreservingOrder: import("Function/Curry").Curry<(<T>(query: string, keys: string[], list: T[]) => T[])>;
-export declare const vagueObjectSearch: import("Function/Curry").Curry<(<T>(query: string, keys: string[], list: T[]) => T[])>;
-export declare const vagueObjectSearchPreservingOrder: import("Function/Curry").Curry<(<T>(query: string, keys: string[], list: T[]) => T[])>;
-export declare const searchUsingGetters: import("Function/Curry").Curry<(<T>(query: string, getters: [(item: T) => string], list: T[]) => T[])>;
-export declare const searchUsingGettersPreservingOrder: import("Function/Curry").Curry<(<T>(query: string, getters: [(item: T) => string], list: T[]) => T[])>;
-export declare const vagueSearchUsingGetters: import("Function/Curry").Curry<(<T>(query: string, getters: [(item: T) => string], list: T[]) => T[])>;
-export declare const vagueSearchUsingGettersPreservingOrder: import("Function/Curry").Curry<(<T>(query: string, getters: [(item: T) => string], list: T[]) => T[])>;
+export declare const search: (query: string, list: string[]) => string[];
+export declare const searchPreservingOrder: (query: string, list: string[]) => string[];
+export declare const vagueSearch: (query: string, list: string[]) => string[];
+export declare const vagueSearchPreservingOrder: (query: string, list: string[]) => string[];
+export declare const objectSearch: <T>(query: string, keys: string[], list: T[]) => T[];
+export declare const objectSearchPreservingOrder: <T>(query: string, keys: string[], list: T[]) => T[];
+export declare const vagueObjectSearch: <T>(query: string, keys: string[], list: T[]) => T[];
+export declare const vagueObjectSearchPreservingOrder: <T>(query: string, keys: string[], list: T[]) => T[];
+export declare const searchUsingGetters: <T>(query: string, getters: ((item: T) => string | string[])[], list: T[]) => T[];
+export declare const searchUsingGettersPreservingOrder: <T>(query: string, getters: ((item: T) => string | string[])[], list: T[]) => T[];
+export declare const vagueSearchUsingGetters: <T>(query: string, getters: ((item: T) => string | string[])[], list: T[]) => T[];
+export declare const vagueSearchUsingGettersPreservingOrder: <T>(query: string, getters: ((item: T) => string | string[])[], list: T[]) => T[];

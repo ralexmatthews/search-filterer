@@ -32,10 +32,10 @@ const distance = (string1, string2) => {
     if (aWords.length > 1 || bWords.length > 1) {
         let subQueries = aWords.length >= bWords.length ? aWords : bWords;
         let score = Infinity;
-        (aWords.length < bWords.length ? aWords : bWords).forEach(subTerm => {
-            const subTermScores = subQueries.map(subQuery => ({
+        (aWords.length < bWords.length ? aWords : bWords).forEach((subTerm) => {
+            const subTermScores = subQueries.map((subQuery) => ({
                 v: subQuery,
-                d: distance(subQuery, subTerm)
+                d: distance(subQuery, subTerm),
             }));
             const minValue = subTermScores.reduce((acc, obj) => (acc.d < obj.d ? acc : obj), subTermScores[0]);
             score = (minValue.d + (score !== Infinity ? score : minValue.d)) / 2;
@@ -61,126 +61,153 @@ const distance = (string1, string2) => {
     }
     return d[a.length][b.length];
 };
-const coreSearch = (query, list) => list.map(item => ({
-    v: item,
-    d: distance(query, item)
+const scoreListOfStrings = (query, list) => list.map((item) => ({
+    item,
+    distance: distance(query, item),
 }));
-exports.search = ramda_1.curry((query, list) => {
+/** For taking 1 item, 1 path, and returning an array of strings to score */
+const getListOfItemsToScore = (item, path) => {
+    if (path.length === 0) {
+        return [];
+    }
+    if (path.length === 1) {
+        const newItem = item[path[0]];
+        if (Array.isArray(newItem)) {
+            if (typeof newItem[0] !== "string") {
+                return [];
+            }
+            return newItem;
+        }
+        if (typeof newItem !== "string") {
+            return [];
+        }
+        return [newItem];
+    }
+    const newItem = item[path[0]];
+    return Array.isArray(newItem)
+        ? newItem.reduce((totalArray, subItem) => totalArray.concat(getListOfItemsToScore(subItem, path.slice(1))), [])
+        : getListOfItemsToScore(newItem, path.slice(1));
+};
+const scoreListOfObjectsWithKeys = (query, keys, list) => list.map((item) => ({
+    item,
+    distance: Math.min(...keys.map((key) => {
+        const itemsToScore = getListOfItemsToScore(item, key.split("."));
+        return Math.min(...itemsToScore.map((subItem) => distance(query, subItem)));
+    })),
+}));
+const scoreListOfObjectsWithGetters = (query, getters, list) => list.map((item) => ({
+    item,
+    distance: Math.min(...getters.map((getter) => {
+        const itemsToScore = getter(item);
+        if (!itemsToScore) {
+            return Infinity;
+        }
+        if (Array.isArray(itemsToScore)) {
+            return itemsToScore[0]
+                ? Math.min(...itemsToScore
+                    .filter(Boolean)
+                    .map((subItem) => distance(query, subItem)))
+                : Infinity;
+        }
+        return distance(query, itemsToScore);
+    })),
+}));
+exports.search = (query, list) => {
     if (!query) {
         return list;
     }
-    return ramda_1.sortBy(({ d }) => d, coreSearch(query, list))
-        .filter(({ d }) => d < 2)
-        .map(({ v }) => v);
-});
-exports.searchPreservingOrder = ramda_1.curry((query, list) => {
+    return ramda_1.sortBy(({ distance }) => distance, scoreListOfStrings(query, list))
+        .filter(({ distance }) => distance < 2)
+        .map(({ item }) => item);
+};
+exports.searchPreservingOrder = (query, list) => {
     if (!query) {
         return list;
     }
-    return coreSearch(query, list)
-        .filter(({ d }) => d < 2)
-        .map(({ v }) => v);
-});
-exports.vagueSearch = ramda_1.curry((query, list) => {
+    return scoreListOfStrings(query, list)
+        .filter(({ distance }) => distance < 2)
+        .map(({ item }) => item);
+};
+exports.vagueSearch = (query, list) => {
     if (!query) {
         return list;
     }
-    return ramda_1.sortBy(({ d }) => d, coreSearch(query, list))
-        .filter(({ d }) => d < 3)
-        .map(({ v }) => v);
-});
-exports.vagueSearchPreservingOrder = ramda_1.curry((query, list) => {
+    return ramda_1.sortBy(({ distance }) => distance, scoreListOfStrings(query, list))
+        .filter(({ distance }) => distance < 3)
+        .map(({ item }) => item);
+};
+exports.vagueSearchPreservingOrder = (query, list) => {
     if (!query) {
         return list;
     }
-    return coreSearch(query, list)
-        .filter(({ d }) => d < 3)
-        .map(({ v }) => v);
-});
-const coreObjectSearch = (query, keys, list) => list.map(item => {
-    const scores = keys
-        .map(key => ramda_1.path(key.split("."), item))
-        .filter(v => typeof v === "string")
-        .map(term => distance(`${term}`, query));
-    return {
-        v: item,
-        d: Math.min(...scores)
-    };
-});
-exports.objectSearch = ramda_1.curry((query, keys, list) => {
+    return scoreListOfStrings(query, list)
+        .filter(({ distance }) => distance < 3)
+        .map(({ item }) => item);
+};
+exports.objectSearch = (query, keys, list) => {
     if (!query) {
         return list;
     }
-    return ramda_1.sortBy(({ d }) => d, coreObjectSearch(query, keys, list))
-        .filter(({ d }) => d < 2)
-        .map(({ v }) => v);
-});
-exports.objectSearchPreservingOrder = ramda_1.curry((query, keys, list) => {
+    return ramda_1.sortBy(({ distance }) => distance, scoreListOfObjectsWithKeys(query, keys, list))
+        .filter(({ distance }) => distance < 2)
+        .map(({ item }) => item);
+};
+exports.objectSearchPreservingOrder = (query, keys, list) => {
     if (!query) {
         return list;
     }
-    return coreObjectSearch(query, keys, list)
-        .filter(({ d }) => d < 2)
-        .map(({ v }) => v);
-});
-exports.vagueObjectSearch = ramda_1.curry((query, keys, list) => {
+    return scoreListOfObjectsWithKeys(query, keys, list)
+        .filter(({ distance }) => distance < 2)
+        .map(({ item }) => item);
+};
+exports.vagueObjectSearch = (query, keys, list) => {
     if (!query) {
         return list;
     }
-    return ramda_1.sortBy(({ d }) => d, coreObjectSearch(query, keys, list))
-        .filter(({ d }) => d < 3)
-        .map(({ v }) => v);
-});
-exports.vagueObjectSearchPreservingOrder = ramda_1.curry((query, keys, list) => {
+    return ramda_1.sortBy(({ distance }) => distance, scoreListOfObjectsWithKeys(query, keys, list))
+        .filter(({ distance }) => distance < 3)
+        .map(({ item }) => item);
+};
+exports.vagueObjectSearchPreservingOrder = (query, keys, list) => {
     if (!query) {
         return list;
     }
-    return coreObjectSearch(query, keys, list)
-        .filter(({ d }) => d < 3)
-        .map(({ v }) => v);
-});
-const coreGetterSearch = (query, getters, list) => list.map(item => {
-    const scores = getters
-        .map(getter => getter(item))
-        .filter(v => typeof v === "string")
-        .map(term => distance(term, query));
-    return {
-        v: item,
-        d: Math.min(...scores)
-    };
-});
-exports.searchUsingGetters = ramda_1.curry((query, getters, list) => {
+    return scoreListOfObjectsWithKeys(query, keys, list)
+        .filter(({ distance }) => distance < 3)
+        .map(({ item }) => item);
+};
+exports.searchUsingGetters = (query, getters, list) => {
     if (!query) {
         return list;
     }
-    return ramda_1.sortBy(({ d }) => d, coreGetterSearch(query, getters, list))
-        .filter(({ d }) => d < 2)
-        .map(({ v }) => v);
-});
-exports.searchUsingGettersPreservingOrder = ramda_1.curry((query, getters, list) => {
+    return ramda_1.sortBy(({ distance }) => distance, scoreListOfObjectsWithGetters(query, getters, list))
+        .filter(({ distance }) => distance < 2)
+        .map(({ item }) => item);
+};
+exports.searchUsingGettersPreservingOrder = (query, getters, list) => {
     if (!query) {
         return list;
     }
-    return coreGetterSearch(query, getters, list)
-        .filter(({ d }) => d < 2)
-        .map(({ v }) => v);
-});
-exports.vagueSearchUsingGetters = ramda_1.curry((query, getters, list) => {
+    return scoreListOfObjectsWithGetters(query, getters, list)
+        .filter(({ distance }) => distance < 2)
+        .map(({ item }) => item);
+};
+exports.vagueSearchUsingGetters = (query, getters, list) => {
     if (!query) {
         return list;
     }
-    return ramda_1.sortBy(({ d }) => d, coreGetterSearch(query, getters, list))
-        .filter(({ d }) => d < 3)
-        .map(({ v }) => v);
-});
-exports.vagueSearchUsingGettersPreservingOrder = ramda_1.curry((query, getters, list) => {
+    return ramda_1.sortBy(({ distance }) => distance, scoreListOfObjectsWithGetters(query, getters, list))
+        .filter(({ distance }) => distance < 3)
+        .map(({ item }) => item);
+};
+exports.vagueSearchUsingGettersPreservingOrder = (query, getters, list) => {
     if (!query) {
         return list;
     }
-    return coreGetterSearch(query, getters, list)
-        .filter(({ d }) => d < 3)
-        .map(({ v }) => v);
-});
+    return scoreListOfObjectsWithGetters(query, getters, list)
+        .filter(({ distance }) => distance < 3)
+        .map(({ item }) => item);
+};
 
 },{"ramda":91}],2:[function(require,module,exports){
 const {
