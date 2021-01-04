@@ -1,8 +1,14 @@
 import { path, sortBy } from "ramda";
 
 const distance = (string1: string, string2: string) => {
-  const a = string1.trim().toLowerCase();
-  const b = string2.trim().toLowerCase();
+  const a = string1
+    .trim()
+    .toLowerCase()
+    .replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+  const b = string2
+    .trim()
+    .toLowerCase()
+    .replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
 
   if (!a.length || !b.length) {
     return Infinity;

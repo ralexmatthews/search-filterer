@@ -3,8 +3,14 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const ramda_1 = require("ramda");
 const distance = (string1, string2) => {
-    const a = string1.trim().toLowerCase();
-    const b = string2.trim().toLowerCase();
+    const a = string1
+        .trim()
+        .toLowerCase()
+        .replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+    const b = string2
+        .trim()
+        .toLowerCase()
+        .replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
     if (!a.length || !b.length) {
         return Infinity;
     }
