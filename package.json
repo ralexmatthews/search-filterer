@@ -1,6 +1,6 @@
 {
   "name": "search-filterer",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "A curried memoized search library",
   "repository": "https://github.com/amatthews4851/search-filterer",
   "main": "dist/index.js",

@@ -1,4 +1,4 @@
-import { path, sortBy } from "ramda";
+import { sortBy } from "ramda";
 
 const distance = (string1: string, string2: string) => {
   const a = string1
@@ -86,7 +86,7 @@ type Score<A> = {
   distance: number;
 };
 
-const scoreListOfStrings = (query: string, list: string[]) =>
+const scoreListOfStrings = (query: string, list: readonly string[]) =>
   list.map(
     (item) =>
       ({
@@ -129,7 +129,7 @@ const getListOfItemsToScore = <A>(item: A, path: string[]): string[] => {
 const scoreListOfObjectsWithKeys = <A>(
   query: string,
   keys: string[],
-  list: A[]
+  list: readonly A[]
 ) =>
   list.map(
     (item) =>
@@ -150,7 +150,7 @@ const scoreListOfObjectsWithKeys = <A>(
 const scoreListOfObjectsWithGetters = <A>(
   query: string,
   getters: ((item: A) => string | string[])[],
-  list: A[]
+  list: readonly A[]
 ) =>
   list.map(
     (item) =>
@@ -180,7 +180,7 @@ const scoreListOfObjectsWithGetters = <A>(
       } as Score<A>)
   );
 
-export const search = (query: string, list: string[]) => {
+export const search = (query: string, list: readonly string[]) => {
   if (!query) {
     return list;
   }
@@ -189,7 +189,10 @@ export const search = (query: string, list: string[]) => {
     .map(({ item }) => item);
 };
 
-export const searchPreservingOrder = (query: string, list: string[]) => {
+export const searchPreservingOrder = (
+  query: string,
+  list: readonly string[]
+) => {
   if (!query) {
     return list;
   }
@@ -198,7 +201,7 @@ export const searchPreservingOrder = (query: string, list: string[]) => {
     .map(({ item }) => item);
 };
 
-export const vagueSearch = (query: string, list: string[]) => {
+export const vagueSearch = (query: string, list: readonly string[]) => {
   if (!query) {
     return list;
   }
@@ -207,7 +210,10 @@ export const vagueSearch = (query: string, list: string[]) => {
     .map(({ item }) => item);
 };
 
-export const vagueSearchPreservingOrder = (query: string, list: string[]) => {
+export const vagueSearchPreservingOrder = (
+  query: string,
+  list: readonly string[]
+) => {
   if (!query) {
     return list;
   }
@@ -216,7 +222,11 @@ export const vagueSearchPreservingOrder = (query: string, list: string[]) => {
     .map(({ item }) => item);
 };
 
-export const objectSearch = <T>(query: string, keys: string[], list: T[]) => {
+export const objectSearch = <T>(
+  query: string,
+  keys: string[],
+  list: readonly T[]
+) => {
   if (!query) {
     return list;
   }
@@ -231,7 +241,7 @@ export const objectSearch = <T>(query: string, keys: string[], list: T[]) => {
 export const objectSearchPreservingOrder = <T>(
   query: string,
   keys: string[],
-  list: T[]
+  list: readonly T[]
 ) => {
   if (!query) {
     return list;
@@ -244,7 +254,7 @@ export const objectSearchPreservingOrder = <T>(
 export const vagueObjectSearch = <T>(
   query: string,
   keys: string[],
-  list: T[]
+  list: readonly T[]
 ) => {
   if (!query) {
     return list;
@@ -260,7 +270,7 @@ export const vagueObjectSearch = <T>(
 export const vagueObjectSearchPreservingOrder = <T>(
   query: string,
   keys: string[],
-  list: T[]
+  list: readonly T[]
 ) => {
   if (!query) {
     return list;
@@ -273,7 +283,7 @@ export const vagueObjectSearchPreservingOrder = <T>(
 export const searchUsingGetters = <T>(
   query: string,
   getters: ((item: T) => string | string[])[],
-  list: T[]
+  list: readonly T[]
 ) => {
   if (!query) {
     return list;
@@ -289,7 +299,7 @@ export const searchUsingGetters = <T>(
 export const searchUsingGettersPreservingOrder = <T>(
   query: string,
   getters: ((item: T) => string | string[])[],
-  list: T[]
+  list: readonly T[]
 ) => {
   if (!query) {
     return list;
@@ -302,7 +312,7 @@ export const searchUsingGettersPreservingOrder = <T>(
 export const vagueSearchUsingGetters = <T>(
   query: string,
   getters: ((item: T) => string | string[])[],
-  list: T[]
+  list: readonly T[]
 ) => {
   if (!query) {
     return list;
@@ -318,7 +328,7 @@ export const vagueSearchUsingGetters = <T>(
 export const vagueSearchUsingGettersPreservingOrder = <T>(
   query: string,
   getters: ((item: T) => string | string[])[],
-  list: T[]
+  list: readonly T[]
 ) => {
   if (!query) {
     return list;
