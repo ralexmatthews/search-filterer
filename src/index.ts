@@ -128,7 +128,7 @@ const getListOfItemsToScore = <A>(item: A, path: string[]): string[] => {
 
 const scoreListOfObjectsWithKeys = <A>(
   query: string,
-  keys: string[],
+  keys: readonly string[],
   list: readonly A[]
 ) =>
   list.map(
@@ -147,9 +147,12 @@ const scoreListOfObjectsWithKeys = <A>(
       } as Score<A>)
   );
 
+const isArray = <A>(arg: A | readonly A[] | A[]): arg is readonly A[] | A[] =>
+  Array.isArray(arg);
+
 const scoreListOfObjectsWithGetters = <A>(
   query: string,
-  getters: ((item: A) => string | string[])[],
+  getters: readonly ((item: A) => string | readonly string[])[],
   list: readonly A[]
 ) =>
   list.map(
@@ -164,7 +167,7 @@ const scoreListOfObjectsWithGetters = <A>(
               return Infinity;
             }
 
-            if (Array.isArray(itemsToScore)) {
+            if (isArray(itemsToScore)) {
               return itemsToScore[0]
                 ? Math.min(
                     ...itemsToScore
@@ -172,9 +175,9 @@ const scoreListOfObjectsWithGetters = <A>(
                       .map((subItem) => distance(query, subItem))
                   )
                 : Infinity;
+            } else {
+              return distance(query, itemsToScore);
             }
-
-            return distance(query, itemsToScore);
           })
         ),
       } as Score<A>)
@@ -224,7 +227,7 @@ export const vagueSearchPreservingOrder = (
 
 export const objectSearch = <T>(
   query: string,
-  keys: string[],
+  keys: readonly string[],
   list: readonly T[]
 ) => {
   if (!query) {
@@ -240,7 +243,7 @@ export const objectSearch = <T>(
 
 export const objectSearchPreservingOrder = <T>(
   query: string,
-  keys: string[],
+  keys: readonly string[],
   list: readonly T[]
 ) => {
   if (!query) {
@@ -253,7 +256,7 @@ export const objectSearchPreservingOrder = <T>(
 
 export const vagueObjectSearch = <T>(
   query: string,
-  keys: string[],
+  keys: readonly string[],
   list: readonly T[]
 ) => {
   if (!query) {
@@ -269,7 +272,7 @@ export const vagueObjectSearch = <T>(
 
 export const vagueObjectSearchPreservingOrder = <T>(
   query: string,
-  keys: string[],
+  keys: readonly string[],
   list: readonly T[]
 ) => {
   if (!query) {
@@ -282,7 +285,7 @@ export const vagueObjectSearchPreservingOrder = <T>(
 
 export const searchUsingGetters = <T>(
   query: string,
-  getters: ((item: T) => string | string[])[],
+  getters: readonly ((item: T) => string | readonly string[])[],
   list: readonly T[]
 ) => {
   if (!query) {
@@ -298,7 +301,7 @@ export const searchUsingGetters = <T>(
 
 export const searchUsingGettersPreservingOrder = <T>(
   query: string,
-  getters: ((item: T) => string | string[])[],
+  getters: readonly ((item: T) => string | readonly string[])[],
   list: readonly T[]
 ) => {
   if (!query) {
@@ -311,7 +314,7 @@ export const searchUsingGettersPreservingOrder = <T>(
 
 export const vagueSearchUsingGetters = <T>(
   query: string,
-  getters: ((item: T) => string | string[])[],
+  getters: readonly ((item: T) => string | readonly string[])[],
   list: readonly T[]
 ) => {
   if (!query) {
@@ -327,7 +330,7 @@ export const vagueSearchUsingGetters = <T>(
 
 export const vagueSearchUsingGettersPreservingOrder = <T>(
   query: string,
-  getters: ((item: T) => string | string[])[],
+  getters: readonly ((item: T) => string | readonly string[])[],
   list: readonly T[]
 ) => {
   if (!query) {

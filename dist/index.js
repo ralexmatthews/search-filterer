@@ -100,6 +100,7 @@ const scoreListOfObjectsWithKeys = (query, keys, list) => list.map((item) => ({
         return Math.min(...itemsToScore.map((subItem) => distance(query, subItem)));
     })),
 }));
+const isArray = (arg) => Array.isArray(arg);
 const scoreListOfObjectsWithGetters = (query, getters, list) => list.map((item) => ({
     item,
     distance: Math.min(...getters.map((getter) => {
@@ -107,14 +108,16 @@ const scoreListOfObjectsWithGetters = (query, getters, list) => list.map((item) 
         if (!itemsToScore) {
             return Infinity;
         }
-        if (Array.isArray(itemsToScore)) {
+        if (isArray(itemsToScore)) {
             return itemsToScore[0]
                 ? Math.min(...itemsToScore
                     .filter(Boolean)
                     .map((subItem) => distance(query, subItem)))
                 : Infinity;
         }
-        return distance(query, itemsToScore);
+        else {
+            return distance(query, itemsToScore);
+        }
     })),
 }));
 exports.search = (query, list) => {
